@@ -237,27 +237,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/charts.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("policy-lab");
-      CrisisCharts.renderCostVsSafetyChart("chart-cost-safety");
-      CrisisCharts.renderEquityVsTimeChart("chart-equity-time");
-    });
-
-    function selectPolicyCard(policyKey) {
-      CrisisCommon.showToast(`Selected ${policyKey.toUpperCase()} policy template for inspection`);
-    }
-
-    function applyCustomPolicy() {
-      CrisisCommon.showToast("Re-evaluating Pareto efficiency across 10,000 synthetic agents...");
-      setTimeout(() => {
-        CrisisCommon.showToast("Heuristic run complete: Optimal frontier calibrated!");
-      }, 700);
-    }
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>

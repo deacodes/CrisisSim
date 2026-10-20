@@ -227,17 +227,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/map.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("dashboard");
-      CrisisCharts.renderEvacuationProgressChart("dashboard-progress-chart");
-      window.mountConfiguredRivertonMap("dashboard-map-container", { isCompact: true, showControls: false, showLegend: false });
-    });
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>

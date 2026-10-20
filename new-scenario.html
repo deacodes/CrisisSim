@@ -123,7 +123,7 @@
                             <div class="hazard-card selected" onclick="selectHazard('Flood')">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                   <strong style="font-size:14px; color:var(--accent-flood-light);">Riverine Flood Model</strong>
-                  <span class="badge badge-success">Active & Calibrated</span>
+                  <span class="badge badge-success">Synthetic flood model</span>
                 </div>
                 <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.4;">
                   Flagship synthetic hydrological simulation. Simulates precipitation influx, soil saturation, river stage meander crest, and bridge clearance inundation.
@@ -381,7 +381,7 @@
             <div class="product-statement-banner" style="margin:0;">
               <div>
                 <strong style="color:var(--text-primary); font-size:12px;">Simulation Disclaimer:</strong>
-                <div style="font-size:11px; color:var(--text-muted);">CrisisSim uses a synthetic, data-calibrated city for educational decision support. It is not an official emergency forecast or dispatch system.</div>
+                <div style="font-size:11px; color:var(--text-muted);">CrisisSim uses a synthetic, uncalibrated city for educational decision support. It is not an official emergency forecast or dispatch system.</div>
               </div>
             </div>
           </div>
@@ -398,75 +398,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script>
-    let currentStep = 1;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("scenarios");
-    });
-
-    function updateVal(id, text) {
-      const el = document.getElementById(`val-${id}`);
-      if (el) el.textContent = text;
-    }
-
-    function goToStep(step) {
-      currentStep = step;
-      for (let i = 1; i <= 4; i++) {
-        const panel = document.getElementById(`step-panel-${i}`);
-        const nav = document.getElementById(`step-nav-${i}`);
-        if (panel) panel.style.display = i === step ? "block" : "none";
-        if (nav) {
-          nav.className = `step-item ${i === step ? 'active' : (i < step ? 'completed' : '')}`;
-        }
-      }
-
-      if (step === 4) {
-                document.getElementById("review-name").textContent = document.getElementById("input-name").value || "Custom Riverton Scenario";
-        document.getElementById("review-rainfall").textContent = document.getElementById("input-rainfall").value + " mm/hr";
-        document.getElementById("review-duration").textContent = document.getElementById("input-duration").value + " Hours";
-        document.getElementById("review-warning").textContent = document.getElementById("input-warning").value + " Hours";
-        document.getElementById("review-budget").textContent = "$" + Number(document.getElementById("input-budget").value).toFixed(1) + "M";
-      }
-    }
-
-    function applyPolicyTemplate(tpl) {
-      if (tpl === "cost") {
-        document.getElementById("input-budget").value = 5.5;
-        updateVal("budget", "$5.5M");
-      } else if (tpl === "equity") {
-        document.getElementById("input-budget").value = 11.2;
-        updateVal("budget", "$11.2M");
-      } else if (tpl === "baseline") {
-        document.getElementById("input-budget").value = 4.2;
-        updateVal("budget", "$4.2M");
-      } else {
-        document.getElementById("input-budget").value = 12.0;
-        updateVal("budget", "$12.0M");
-      }
-    }
-
-    function launchScenario() {
-      const newSc = {
-        name: document.getElementById("input-name").value || "Custom Riverton Flood Case",
-        hazardType: "Flood",
-        severity: "High (Cat 3)",
-        rainfallIntensity: Number(document.getElementById("input-rainfall").value),
-        stormDuration: Number(document.getElementById("input-duration").value),
-        warningTime: Number(document.getElementById("input-warning").value),
-        budget: Number(document.getElementById("input-budget").value),
-        description: `Custom scenario with ${document.getElementById("input-rainfall").value} mm/h precipitation and $${document.getElementById("input-budget").value}M response allocation.`
-      };
-
-      const created = window.CrisisState.createScenario(newSc);
-      CrisisCommon.showToast("Scenario created and saved to the local simulation.");
-      setTimeout(() => {
-        window.location.href = `command-center.html?id=${created.id}`;
-      }, 300);
-    }
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>

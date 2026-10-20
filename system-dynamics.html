@@ -322,34 +322,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("dynamics");
-      renderSystemTimeline();
-    });
-
-    function renderSystemTimeline() {
-      const timeline = document.getElementById("system-timeline");
-      const events = window.CrisisData?.SYSTEM_TIMELINE || [];
-      if (!timeline) return;
-
-      if (!events.length) {
-        timeline.innerHTML = '<div style="color:var(--text-secondary); font-size:12px;">No event milestones are available for this scenario.</div>';
-        return;
-      }
-
-      timeline.innerHTML = events.map((event) => `
-        <article class="timeline-event">
-          <div class="timeline-dot ${event.level}"></div>
-          <div class="timeline-event-time">${event.time} · Hour ${event.hour}</div>
-          <div class="timeline-event-title">${event.title}</div>
-          <div class="timeline-event-description">${event.desc}</div>
-        </article>
-      `).join("");
-    }
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>

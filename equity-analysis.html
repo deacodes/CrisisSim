@@ -135,64 +135,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/map.js"></script>
-  <script>
-    function renderEquityTable() {
-      const tableBody = document.getElementById("equity-table-body");
-      const neighborhoods = window.CrisisData?.NEIGHBORHOODS || [];
-      if (!tableBody) return;
-
-      if (!neighborhoods.length) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="equity-table-empty">Neighborhood data is unavailable. Refresh the page to retry.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = neighborhoods.map((neighborhood) => {
-        const riskBadge = neighborhood.vulnerabilityScore > 0.7
-          ? "badge-danger"
-          : neighborhood.vulnerabilityScore > 0.4 ? "badge-warning" : "badge-success";
-        const evacuationColor = neighborhood.evacuationSuccessRate > 85
-          ? "var(--accent-safe)" : "var(--accent-danger)";
-        const strandedColor = (100 - neighborhood.evacuationSuccessRate) > 20
-          ? "var(--accent-danger)" : "var(--text-muted)";
-
-        return `
-          <tr class="${neighborhood.id === "N5" ? "highlight-row" : ""}">
-            <td>
-              <strong class="equity-neighborhood-name">${neighborhood.name}</strong>
-              <div class="equity-neighborhood-code">${neighborhood.code}</div>
-            </td>
-            <td class="tabular-nums equity-number">${neighborhood.population.toLocaleString()}</td>
-            <td><span class="badge ${riskBadge}">${neighborhood.vulnerabilityScore} · ${neighborhood.vulnerabilityTier}</span></td>
-            <td class="tabular-nums equity-number" style="font-weight:700; color:${evacuationColor};">${neighborhood.evacuationSuccessRate}%</td>
-            <td class="tabular-nums equity-number">${neighborhood.estimatedSafeTravelTime} hrs</td>
-            <td class="tabular-nums equity-number" style="color:${strandedColor};">${(100 - neighborhood.evacuationSuccessRate).toFixed(1)}%</td>
-            <td>${neighborhood.nearestShelter} <span class="equity-distance">${neighborhood.shelterDistanceKm} km</span></td>
-            <td class="tabular-nums equity-number" style="font-weight:600;">${neighborhood.resourcesPer1k} units</td>
-          </tr>
-        `;
-      }).join("");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("equity");
-      renderEquityTable();
-      CrisisCharts.renderEquityDisparityBarChart("chart-disparity-bars");
-      window.mountConfiguredRivertonMap("equity-map-wrapper", {
-        isCompact: true,
-        showControls: false,
-        showLegend: false
-      });
-    });
-
-    function exportEquityReport() {
-      CrisisCommon.showToast("Exporting Neighborhood Equity Brief (PDF / Print layout)");
-      window.print();
-    }
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>

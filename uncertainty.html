@@ -189,33 +189,6 @@
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/charts.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      CrisisCommon.initShell("uncertainty");
-      CrisisCharts.renderMonteCarloDistribution("chart-mc-distribution");
-      CrisisCharts.renderSensitivityTornado("chart-sensitivity-tornado");
-    });
-
-    function setMCRuns(runs) {
-      [10, 50, 100].forEach(r => {
-        const btn = document.getElementById(`mc-${r}`);
-        if (btn) btn.classList.toggle("active", r === runs);
-      });
-      CrisisCommon.showToast(`Configured Monte Carlo sampling: ${runs} Latin Hypercube runs`);
-    }
-
-    function runMonteCarlo() {
-      CrisisCommon.showToast("Executing stochastic Monte Carlo ensemble across the Riverton simulation...");
-      setTimeout(() => {
-        CrisisCharts.renderMonteCarloDistribution("chart-mc-distribution");
-        CrisisCharts.renderSensitivityTornado("chart-sensitivity-tornado");
-        CrisisCommon.showToast("Monte Carlo run complete! 95% CI: 86% ± 5% safely evacuated.");
-      }, 800);
-    }
-  </script>
+  <script type="module" src="js/frontend.js"></script>
 </body>
 </html>
