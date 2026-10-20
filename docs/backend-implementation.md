@@ -61,3 +61,21 @@ capacity. Policies alter mechanisms, never final metrics.
 - [ ] G: reports, operations, benchmarks and model card
 
 Each item requires tests, not only code. Track incomplete capabilities explicitly.
+
+## Stages 1–4 component delivery
+
+The user's subsequent scope is independent flood verification, agents,
+transportation and emergency operations, before coupling or services.
+See `engine-stages-1-4.md` for implemented equations, contracts, tests,
+assumptions and remaining coupling responsibilities.
+
+- Implemented: reflective/open/stage boundaries and static local mesh refinement.
+- Verified: still water, rainfall, sink accounting, boundary flux, dry-bed dam
+  break, mesh and temporal refinement; small/standard hydrodynamic benchmarks.
+- Implemented: individual population generation, warning/preparation behavior,
+  explicit transitions and exposure bookkeeping.
+- Implemented: conservative cell-transmission links/junctions, current-state
+  routing and sampled road-level closure updates.
+- Implemented: facility queues, accessible admissions, hospital service,
+  constrained dispatch and budget accounting.
+- Still pending: C's combined coupling requirement, D–G, and empirical validation.
