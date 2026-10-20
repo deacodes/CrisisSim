@@ -52,13 +52,15 @@ capacity. Policies alter mechanisms, never final metrics.
 
 ## Acceptance ledger
 
-- [ ] A: dependency proof, contracts and validated canonical city
-- [ ] B: verified flood adapter and standalone CLI
-- [ ] C: coupled population, transport, dispatch and facilities
-- [ ] D: persistence, workers, controls, replay, APIs
-- [ ] E: all-page and both-map integration
-- [ ] F: equity, comparisons, uncertainty and optimization
-- [ ] G: reports, operations, benchmarks and model card
+- [x] A: dependency proof, contracts and validated canonical city
+- [x] B: verified flood adapter and standalone CLI
+- [x] C: coupled population, transport, dispatch and facilities (documented approximations)
+- [x] D: local persistence, process workers, controls, replay, APIs
+- [x] E: all-page and both-map integration with browser smoke test
+- [x] F: equity, comparisons, uncertainty and optimization
+- [x] G: local reports, operations, benchmarks and model card
+- [ ] PostgreSQL/Celery container deployment execution (Docker unavailable)
+- [ ] Empirical calibration / real-world validation (not claimed)
 
 Each item requires tests, not only code. Track incomplete capabilities explicitly.
 
@@ -78,4 +80,24 @@ assumptions and remaining coupling responsibilities.
   routing and sampled road-level closure updates.
 - Implemented: facility queues, accessible admissions, hospital service,
   constrained dispatch and budget accounting.
-- Still pending: C's combined coupling requirement, D–G, and empirical validation.
+- At that delivery: combined coupling and D–G were pending. See below for the
+  subsequent local implementation; empirical validation remains unavailable.
+
+## Stages 5–9: local integration verification
+
+- 35 Python tests passed, including coupled reproducibility, replay, branch
+  prehistory, command idempotency, API persistence, WebSockets, experiments,
+  revision conflicts and exclusion of demo scripts from every production page.
+- Alembic upgrade succeeded against the local SQLite database.
+- Separate Playwright-managed headless browser smoke test: 12 page visits,
+  2D/3D map rendering, replay/checkpoint controls, no uncaught browser errors,
+  no mobile horizontal overflow. Installed Chrome was not used for the successful
+  test. Mechanical UI detector returned no findings for the changed JS/CSS.
+- Coupled benchmark: 32 people / 600 simulated seconds in 0.35 wall seconds;
+  800 people / 1,800 simulated seconds in 3.68 wall seconds. Peak process RSS
+  about 232 MB including dependencies. These measurements exclude HTTP and UI.
+- Docker, PostgreSQL and Celery deployment files exist but have not been run.
+- Public multi-user authentication, S3/binary field storage and automatic
+  distributed lease recovery are not implemented. Local operation does not
+  require these; do not represent the deployment as a public production service.
+- See `backend-operations.md` and `model-card.md` for assumptions and limitations.
