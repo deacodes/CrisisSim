@@ -32,7 +32,8 @@ def summarize_agents(agents, elapsed_s):
         g["population"] += 1
         if state == "sheltered":
             g["safe"] += 1
-            completed_times.append(a["arrival_s"] - a["warning_s"])
+            origin = a["warning_s"] if np.isfinite(a["warning_s"]) else 0
+            completed_times.append(max(0, a["arrival_s"] - origin))
     rates = []
     for g in groups.values():
         g["success_rate"] = g["safe"] / g["population"]
@@ -40,7 +41,7 @@ def summarize_agents(agents, elapsed_s):
     safe = counts.get("sheltered", 0)
     # A finite-horizon burden, NOT an estimate of eventual evacuation time.
     burden = [max(0, (a["arrival_s"] if a["state"] == "sheltered" else elapsed_s) -
-                  a["warning_s"]) for a in agents]
+                  (a["warning_s"] if np.isfinite(a["warning_s"]) else 0)) for a in agents]
     return {
         "population": len(agents), "state_counts": counts, "safely_evacuated": safe,
         "completion_fraction": safe / len(agents),

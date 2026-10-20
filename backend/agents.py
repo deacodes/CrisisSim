@@ -32,7 +32,7 @@ ALLOWED = {
     State.STRANDED: {State.TRAVELLING, State.RESCUE, State.RESCUING},
     State.RESCUE: {State.RESCUING},
     State.RESCUING: {State.ADMISSION},
-    State.SHELTERED: set(),
+    State.SHELTERED: {State.RESCUE},
 }
 
 
