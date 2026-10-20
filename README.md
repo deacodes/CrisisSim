@@ -1,63 +1,73 @@
 # CrisisSim
 
-CrisisSim is a synthetic-city flood-response prototype for comparing evacuation policies, resource load, and equity outcomes.
+**Simulate disasters. Compare strategies. Plan fairer responses.**
 
-## Run the functioning local backend
+CrisisSim is a synthetic-city flood-response simulation platform for testing evacuation policies, analyzing emergency resource usage, and comparing safety, efficiency, and equity outcomes.
 
-Use the existing isolated environment, or create a Python 3.11 environment and
-install `requirements-backend.lock` (the pinned dependency set).
+## Features
 
-```bash
-.venv/bin/python -m uvicorn backend.api:app --host 127.0.0.1 --port 8010
-```
+- Interactive 3D city and flood visualization
+- Customizable flood and evacuation scenarios
+- Evacuation and emergency resource analysis
+- Policy comparison and equity evaluation
+- Persistent simulation results and reports
 
-Open `http://127.0.0.1:8010`. Create a scenario, save it, and click **Run**.
-The backend-served pages use computed results only. The local default is a
-SQLite database with numerical jobs in separate processes. Metadata and
-checksummed results persist in `runtime/`.
+## Setup
 
-```bash
-.venv/bin/python -m pytest -q
-.venv/bin/python -m backend run
-.venv/bin/python -m backend.verification
-```
+**Requirements:** Python 3.11 and a modern web browser.
 
-API documentation: `http://127.0.0.1:8010/docs`.
-
-See `docs/backend-operations.md` for controls, model limitations, Docker,
-backup/recovery and verification status.
-
-## Frontend previews
-
-The original HTML pages now bind directly to the numerical backend. The API
-serves the same files unchanged; there is no alternate dashboard or mock-data
-fallback. Open through HTTP rather than double-clicking an HTML file.
-
-You can also use an editor preview or a static server while the backend runs:
+### 1. Create a virtual environment
 
 ```bash
-python3 -m http.server 8000
+python3.11 -m venv .venv
+source .venv/bin/activate
 ```
 
-Then visit `http://localhost:8000/command-center.html`.
+Skip this step if you already have a working `.venv`.
 
-On local preview ports 3000, 5500, 8000 and 8001, the frontend connects to the
-backend at `http://127.0.0.1:8010`. CORS and WebSocket origins are explicitly
-restricted to local development origins. If the backend is offline, pages show
-a connection error—not illustrative outcomes. Prefer the backend URL for the
-simplest single-origin setup.
+### 2. Install dependencies
 
-## Map modes
+```bash
+python -m pip install -r requirements-backend.lock
+```
 
-Choose the default map renderer in **Settings → Map Rendering Mode**:
+### 3. Start the application
 
-- **3D City Simulation** — Riverton OBJ assets placed on the numerical terrain,
-  recorded water surfaces and agent/resource positions, with orbit/pan/zoom controls.
-- **2D Operations Map** — an SVG rendering of the same computed snapshot.
+```bash
+python -m uvicorn backend.api:app --host 127.0.0.1 --port 8010
+```
 
-The original OBJ models and shared material file live in `assets/riverton-obj-assets/`.
+Open **http://127.0.0.1:8010** in your browser.
 
-Policy Lab and Uncertainty follow experiment-specific WebSocket updates, with
-HTTP polling if WebSockets fail. Completed jobs use saved results without
-opening a socket. Configuration and reports are backend-persisted; only display
-preferences and selected record IDs are stored in the browser.
+## How to Use
+
+1. **Create:** Open Scenarios and configure rainfall, warning time, resources, and response policy.
+2. **Save:** Save your scenario configuration.
+3. **Run:** Click **Run** to execute the simulation.
+4. **Explore:** Use the Command Center to visualize evacuation and flood outcomes.
+5. **Analyze:** Review resource usage, policy comparisons, and equity metrics.
+
+## Testing
+
+Run the following commands from the project directory:
+
+```bash
+python -m pytest -q
+python -m backend run
+python -m backend.verification
+```
+
+## Technical Details
+
+- **Backend:** Python, FastAPI
+- **Simulation:** Numerical flood and evacuation modeling
+- **Visualization:** JavaScript, Three.js
+- **Database:** SQLite
+- **Execution:** Separate processes for numerical jobs
+- **Storage:** Persistent metadata and checksummed results in `runtime/`
+
+## Disclaimer
+
+CrisisSim uses a synthetic city for educational decision support. It is not an official emergency forecast or dispatch system.
+
+**Developed independently as a hackathon project.**
