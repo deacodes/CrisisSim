@@ -338,6 +338,14 @@
     renderSidebar(activePageId);
     renderHeader(activePageId);
     initSimulationSync();
+    const viewport = document.querySelector("main");
+    if (viewport && !document.getElementById("static-demo-notice")) {
+      const notice = document.createElement("p");
+      notice.id = "static-demo-notice";
+      notice.textContent = "Static demo: illustrative data, not computed results. Start the CrisisSim backend to use the numerical simulation.";
+      notice.style.cssText = "font-size:13px;color:var(--accent-caution);margin:0 0 16px;";
+      viewport.prepend(notice);
+    }
   }
 
   window.CrisisCommon = {
