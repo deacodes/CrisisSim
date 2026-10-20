@@ -10,7 +10,7 @@ from backend.contracts import Scenario, DISCLAIMER
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=["validate-city", "flood"])
+    parser.add_argument("command", choices=["validate-city", "flood", "run"])
     parser.add_argument("--scenario", type=Path)
     parser.add_argument("--output", type=Path, default=Path("runtime"))
     args = parser.parse_args()
@@ -18,6 +18,17 @@ def main():
     result = validate_city(city)
     if args.command == "validate-city":
         print(json.dumps(result))
+        return
+    if args.command == "run":
+        from backend.run_contracts import RunConfig
+        from backend.storage import Store
+        from backend.worker import run_job
+        config = RunConfig.model_validate_json(args.scenario.read_text()) if args.scenario else RunConfig()
+        store = Store(args.output)
+        record = store.create("run", {"config": config.model_dump(), "sequence": -1,
+                                      "time_s": 0, "progress": 0}, "queued")
+        run_job(str(store.root), store.url, record["id"])
+        print(json.dumps(store.get(record["id"]), indent=2))
         return
     import numpy as np
     from backend.hydrology import FloodModel
