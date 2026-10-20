@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Policy Brief & Reports — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .report-paper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 32px 36px;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+    .report-header-seal {
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .report-section {
+      margin-bottom: 24px;
+    }
+    .report-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--accent-flood-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+                <div class="page-header no-print">
+          <div class="page-header-text">
+            <h1 class="page-title">Executive Policy Brief: Decision Support Report</h1>
+            <div class="page-subtitle">Prepared for municipal emergency management, city council oversight, and climate-resilience task forces.</div>
+          </div>
+          <div class="page-actions">
+                        <select id="report-scenario-select" class="form-control" style="width:240px;" onchange="onReportScenarioChange(this.value)">
+                          </select>
+            <button class="btn btn-primary btn-sm" onclick="exportReport()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              <span>Export / Print Report</span>
+            </button>
+          </div>
+        </div>
+
+                <article class="report-paper" id="printable-report">
+                    <div class="report-header-seal">
+            <div>
+              <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); font-weight:700;">
+                CrisisSim Digital Twin • Municipal Flood Briefing Document #2028-FL-09
+              </div>
+              <h2 style="font-size:22px; font-weight:800; letter-spacing:-0.02em; color:var(--text-primary); margin:6px 0 2px 0;" id="rep-title">
+                Riverton Flood Evacuation Strategy Brief
+              </h2>
+              <div style="font-size:12px; color:var(--text-secondary);">
+                Synthetic City: <strong>Riverton</strong> • Calibrated USGS/Census Model • Scenario: <span id="rep-scenario-name">Riverton Flood — Central City</span>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <span class="badge badge-success" style="font-size:11px;">Policy Approved</span>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:4px; font-family:var(--font-mono);">
+                Published: Oct 20, 2026
+              </div>
+            </div>
+          </div>
+
+                    <section class="report-section">
+            <h3 class="report-section-title">1. Executive Summary</h3>
+            <p style="font-size:13px; line-height:1.6; color:var(--text-primary); margin-bottom:10px;">
+              During a projected Category 3 riverine flood event (90 mm/hr peak precipitation, 2.8m river crest), standard municipal emergency operations result in <strong>3,210 stranded residents</strong> and severe systemic inequities across low-lying districts. This policy assessment evaluates the deployment of CrisisSim’s <strong>Optimized Heuristic Strategy</strong>, which combines early auxiliary shelter activation, targeted amphibious boat dispatch, and high-water shuttle prioritizations.
+            </p>
+            <p style="font-size:13px; line-height:1.6; color:var(--text-secondary);">
+              The recommended strategy elevates total safe evacuations from <strong>74.3% (9,280) to 91.0% (12,480)</strong>, reduces transit delays by <strong>40%</strong>, and lifts the municipal equity score from <strong>0.54 to 0.82</strong> for an incremental response expenditure of <strong>$7.8M</strong>.
+            </p>
+          </section>
+
+                    <section class="report-section">
+            <h3 class="report-section-title">2. Key Operational Outcomes Scorecard</h3>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:12px;">
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted);">Safely Evacuated</div>
+                <div class="tabular-nums" style="font-size:20px; font-weight:700; color:var(--accent-safe);" id="rep-safe">12,480 (91.0%)</div>
+                <div style="font-size:10px; color:var(--accent-safe);">+34% over baseline (9,280)</div>
+              </div>
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted);">Stranded Residents</div>
+                <div class="tabular-nums" style="font-size:20px; font-weight:700; color:var(--accent-danger);" id="rep-stranded">1,230</div>
+                <div style="font-size:10px; color:var(--accent-safe);">-62% reduction from 3,210</div>
+              </div>
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted);">Avg. Transit Duration</div>
+                <div class="tabular-nums" style="font-size:20px; font-weight:700;" id="rep-time">4.8 Hours</div>
+                <div style="font-size:10px; color:var(--accent-safe);">-3.3 hours faster than baseline</div>
+              </div>
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted);">Equity Score</div>
+                <div class="tabular-nums" style="font-size:20px; font-weight:700; color:var(--accent-safe);" id="rep-equity">0.82 / 1.00</div>
+                <div style="font-size:10px; color:var(--accent-safe);">+0.28 Gini parity jump</div>
+              </div>
+            </div>
+          </section>
+
+                    <section class="report-section">
+            <h3 class="report-section-title">3. Municipal Policy Comparison Matrix</h3>
+            <div class="table-responsive">
+              <table class="ops-table">
+                <thead>
+                  <tr>
+                    <th>Strategy</th>
+                    <th>Evacuated</th>
+                    <th>Stranded</th>
+                    <th>Avg. Time</th>
+                    <th>Equity</th>
+                    <th>Cost</th>
+                    <th>Recommendation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Baseline (No Action)</td>
+                    <td class="tabular-nums">9,280</td>
+                    <td class="tabular-nums" style="color:var(--accent-danger);">3,210</td>
+                    <td class="tabular-nums">8.1 hrs</td>
+                    <td class="tabular-nums">0.54</td>
+                    <td class="tabular-nums">$4.2M</td>
+                    <td><span class="badge badge-danger">Unacceptable Risk</span></td>
+                  </tr>
+                  <tr>
+                    <td>Shelter-First Policy</td>
+                    <td class="tabular-nums">11,760</td>
+                    <td class="tabular-nums">1,840</td>
+                    <td class="tabular-nums">5.6 hrs</td>
+                    <td class="tabular-nums">0.76</td>
+                    <td class="tabular-nums">$9.8M</td>
+                    <td><span class="badge badge-info">Viable Baseline</span></td>
+                  </tr>
+                  <tr class="highlight-row">
+                    <td><strong>Optimized Policy (Recommended)</strong></td>
+                    <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">12,480</td>
+                    <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">1,230</td>
+                    <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">4.8 hrs</td>
+                    <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">0.82</td>
+                    <td class="tabular-nums">$12.0M</td>
+                    <td><span class="badge badge-success">Optimal Trade-Off</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+                    <section class="report-section">
+            <h3 class="report-section-title">4. Analytical Model Evidence</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:11px; font-weight:700; margin-bottom:6px;">Evacuation Progress Trend (24h)</div>
+                <div id="rep-progress-chart" style="height:140px;"></div>
+              </div>
+              <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:11px; font-weight:700; margin-bottom:6px;">Equity Disparity by Vulnerability Group</div>
+                <div id="rep-disparity-chart" style="height:140px;"></div>
+              </div>
+            </div>
+          </section>
+
+                    <section class="report-section">
+            <h3 class="report-section-title">5. Critical Bottlenecks & Equity Findings</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; font-size:12.5px; line-height:1.5;">
+              <div style="padding:12px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">
+                  Bridge 3 Structural Closure Vulnerability
+                </strong>
+                Bridge 3 has the lowest deck clearance in Riverton (1.8m). When flood waters surpass 0.2m over the deck at Hour 4.2, 9,800 residents in Neighborhood 5 lose direct egress. Precautionary boat deployment is essential.
+              </div>
+              <div style="padding:12px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">
+                  Transit Dependency Compounding Delay
+                </strong>
+                Neighborhood 5 and Eastside Flats contain the highest concentrations of non-vehicle owners (58% and 46%). Without dedicated municipal bus corridors, these residents suffer an average evacuation delay of +3.2 hours.
+              </div>
+            </div>
+          </section>
+
+                    <section class="report-section" style="border-top:1px solid var(--border-subtle); padding-top:16px;">
+            <h3 class="report-section-title">6. Methodology & Limitations</h3>
+            <p style="font-size:11.5px; color:var(--text-muted); line-height:1.5;">
+              CrisisSim uses a synthetic, data-calibrated city for educational decision support. It is not an official emergency forecast or dispatch system. Simulations rely on simplified 2D hydrodynamic flow equations and synthetic agent routing heuristics. Local municipal authorities must corroborate findings with physical hydrologic gauges before executing real-world dispatch orders.
+            </p>
+          </section>
+        </article>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("reports");
+      populateScenarioDropdown();
+      CrisisCharts.renderEvacuationProgressChart("rep-progress-chart");
+      CrisisCharts.renderEquityDisparityBarChart("rep-disparity-chart");
+    });
+
+    function populateScenarioDropdown() {
+      const select = document.getElementById("report-scenario-select");
+      if (!select) return;
+      const scenarios = window.CrisisState.getScenarios();
+      const activeSc = window.CrisisState.getActiveScenario();
+
+      select.innerHTML = scenarios.map(s => `
+        <option value="${s.id}" ${s.id === activeSc?.id ? 'selected' : ''}>${s.name}</option>
+      `).join('');
+    }
+
+    function onReportScenarioChange(scId) {
+      window.CrisisState.setActiveScenario(scId);
+      const sc = window.CrisisState.getActiveScenario();
+      if (!sc) return;
+
+      document.getElementById("rep-scenario-name").textContent = sc.name;
+      const outcomes = sc.outcomes || { safelyEvacuated: 12480, stranded: 1230, avgEvacuationTime: 4.8, equityScore: 0.82 };
+      document.getElementById("rep-safe").textContent = `${outcomes.safelyEvacuated.toLocaleString()} (${outcomes.evacuationRate || 91}%)`;
+      document.getElementById("rep-stranded").textContent = outcomes.stranded.toLocaleString();
+      document.getElementById("rep-time").textContent = `${outcomes.avgEvacuationTime} Hours`;
+      document.getElementById("rep-equity").textContent = `${outcomes.equityScore} / 1.00`;
+
+      CrisisCommon.showToast(`Report updated for: ${sc.name}`);
+    }
+
+    function exportReport() {
+      window.print();
+    }
+  </script>
+</body>
+</html>
