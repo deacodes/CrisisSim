@@ -2,12 +2,12 @@
 
 ## Repository assessment
 
-The initial checkout is a static HTML/CSS/JavaScript application with local
-Three.js and OBJ assets. No API, worker, database, dependency manifest, or tests
-exist. `js/state.js` generates metrics with fixed policy offsets and a sigmoid;
-scenario storage is localStorage. `js/data.js` contains synthetic fixtures.
-The 3D renderer subscribes to this illustrative state. Preserve this frontend
-until a verified backend adapter is ready; do not silently present it as computed.
+The initial checkout was a static HTML/CSS/JavaScript application with local
+Three.js and OBJ assets. It originally generated metrics with fixed policy
+offsets and a sigmoid, and stored scenarios in localStorage. Those fixture
+modules have now been retired. The original pages bind to backend records
+through `js/app.js`; there is no server-side replacement dashboard.
+See `docs/frontend-integration.md` for authoritative sources and verification.
 
 ## Integration inventory
 

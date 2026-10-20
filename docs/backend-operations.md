@@ -125,7 +125,10 @@ unauthenticated public service.
 .venv/bin/python -m pytest -q
 .venv/bin/python -m backend.verification
 .venv/bin/python -m backend run
-# With the service running; requires Playwright and local Google Chrome:
+# Client connection unit tests (no browser):
+node --test tests/frontend_client.test.mjs
+# With the service running; requires Playwright's isolated browser, not Google Chrome:
+PLAYWRIGHT_BROWSERS_PATH=/tmp/crisissim-browser \
 .venv/bin/python tests/browser_smoke.py http://127.0.0.1:8010 --allow-browser
 ```
 
