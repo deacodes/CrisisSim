@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Center — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+  <style>
+    .command-workspace {
+      display: grid;
+      grid-template-columns: 280px 1fr 310px;
+      gap: 12px;
+      height: calc(100vh - var(--header-height) - 40px);
+      min-height: 720px;
+    }
+
+    .panel-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      height: 100%;
+    }
+
+    .center-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+    }
+
+    .sim-strip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .sim-playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .speed-btn-group {
+      display: inline-flex;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      overflow: hidden;
+      background: var(--bg-inset);
+    }
+
+    .speed-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .speed-btn.active {
+      background: var(--bg-surface);
+      color: var(--accent-flood-light);
+    }
+
+    .sim-timeline-slider {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comparison-drawer {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .comparison-header {
+      padding: 8px 14px;
+      background: var(--bg-inset);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    @media (max-width: 1280px) {
+      .command-workspace {
+        grid-template-columns: 260px 1fr 280px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .command-workspace {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport" style="max-width:1760px; padding:12px 16px 20px 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); letter-spacing:-0.01em;">
+              CrisisSim EOC Command Center
+            </h2>
+            <span style="color:var(--text-muted); font-size:12px;">|</span>
+            <span style="font-size:12px; color:var(--text-secondary);" id="cc-scenario-tag">
+              Riverton Flood — Central City (Cat 3 Inundation)
+            </span>
+          </div>
+
+          <div class="sim-strip" style="padding:4px 10px;">
+            <div class="sim-playback-controls">
+              <button class="btn btn-primary btn-sm" id="btn-sim-play" onclick="toggleSimPlay()" style="width:72px; gap:4px;">
+                <span id="play-icon">▶</span>
+                <span id="play-text">Start</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="resetSim()" title="Reset Simulation Clock">
+                ↺ Reset
+              </button>
+              <div class="speed-btn-group">
+                <button class="speed-btn active" id="spd-1" onclick="setSimSpeed(1)">1×</button>
+                <button class="speed-btn" id="spd-5" onclick="setSimSpeed(5)">5×</button>
+                <button class="speed-btn" id="spd-20" onclick="setSimSpeed(20)">20×</button>
+              </div>
+            </div>
+
+            <div class="sim-timeline-slider">
+              <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">T+00h</span>
+              <input type="range" id="sim-time-scrubber" min="0" max="24" step="0.2" value="8.6" oninput="scrubSimTime(this.value)" style="width:180px;">
+              <span style="font-size:11px; font-family:var(--font-mono); color:var(--accent-flood-light); font-weight:700;" id="sim-time-display">T+08:36</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="command-workspace">
+          <div class="panel-col">
+            <div class="card" style="padding:12px;">
+              <div class="card-header" style="margin-bottom:8px; padding-bottom:6px;">
+                <div class="card-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+                  <span>Weather & Hazard</span>
+                </div>
+              </div>
+
+              <div class="slider-container" style="margin-bottom:10px;">
+                <div class="slider-header">
+                  <span>Rainfall Intensity</span>
+                  <span class="slider-val" id="ctrl-rainfall-val">90 mm/hr</span>
+                </div>
+                <input type="range" min="30" max="180" value="90" oninput="onHazardParamChange('rainfall', this.value, ' mm/hr')">
+                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                  <span>Light</span>
+                  <span>Moderate</span>
+                  <span>Heavy</span>
+                  <span>Extreme</span>
+                </div>
+              </div>
+
+              <div class="slider-container">
+                <div class="slider-header">
+                  <span>Warning Time</span>
+                  <span class="slider-val" id="ctrl-warning-val">6 hours</span>
+                </div>
+                <input type="range" min="1" max="24" value="6" oninput="onHazardParamChange('warning', this.value, ' hours')">
+                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                  <span>0h</span>
+                  <span>6h</span>
+                  <span>12h</span>
+                  <span>24h</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px;">
+              <div class="card-header" style="margin-bottom:8px; padding-bottom:6px;">
+                <div class="card-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 18V6"></path></svg>
+                  <span>Resources</span>
+                </div>
+              </div>
+
+              <div class="slider-container">
+                <div class="slider-header">
+                  <span>Response Budget</span>
+                  <span class="slider-val" id="ctrl-budget-val">$12M</span>
+                </div>
+                <input type="range" min="2" max="50" value="12" oninput="onHazardParamChange('budget', '$' + this.value + 'M')">
+                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                  <span>$0</span>
+                  <span>$10M</span>
+                  <span>$20M</span>
+                  <span>$50M</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px; flex:1;">
+              <div class="card-header" style="margin-bottom:8px; padding-bottom:6px;">
+                <div class="card-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Policy Decisions</span>
+                </div>
+              </div>
+
+              <div class="policy-toggle-row" onclick="handlePolicyToggle('temporaryShelters', this)">
+                <div class="policy-toggle-text">
+                  <div class="title">Temporary Shelter Program</div>
+                  <div class="desc">Open designated auxiliary shelters</div>
+                </div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="pol-temp-shelters" checked onchange="handlePolicyToggle('temporaryShelters')">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="policy-toggle-row" onclick="handlePolicyToggle('rescueBoats', this)">
+                <div class="policy-toggle-text">
+                  <div class="title">Rescue Boats</div>
+                  <div class="desc">Deploy high-water rescue fleet</div>
+                </div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="pol-rescue-boats" checked onchange="handlePolicyToggle('rescueBoats')">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="policy-toggle-row" onclick="handlePolicyToggle('ambulances', this)">
+                <div class="policy-toggle-text">
+                  <div class="title">Assign Ambulances</div>
+                  <div class="desc">Medical triage & patient transport</div>
+                </div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="pol-ambulances" checked onchange="handlePolicyToggle('ambulances')">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="policy-toggle-row" onclick="handlePolicyToggle('closeHighRiskRoads', this)">
+                <div class="policy-toggle-text">
+                  <div class="title">Close High-Risk Roads</div>
+                  <div class="desc">Early barricade on Bridge 3</div>
+                </div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="pol-road-closures" checked onchange="handlePolicyToggle('closeHighRiskRoads')">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="policy-toggle-row" onclick="handlePolicyToggle('prioritizeVulnerable', this)">
+                <div class="policy-toggle-text">
+                  <div class="title">Prioritize Vulnerable Zones</div>
+                  <div class="desc">Target shuttles to Neighborhood 5</div>
+                </div>
+                <label class="switch" onclick="event.stopPropagation()">
+                  <input type="checkbox" id="pol-equity" checked onchange="handlePolicyToggle('prioritizeVulnerable')">
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="center-col">
+            <div id="command-center-map-wrapper" style="flex:1; min-height:460px; position:relative;"></div>
+
+            <div class="comparison-drawer">
+              <div class="comparison-header">
+                <div style="font-weight:700; font-size:12px; display:flex; align-items:center; gap:6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  <span>Policy Comparison</span>
+                  <span style="font-weight:400; color:var(--text-muted); font-size:11px;">How different strategies perform in this scenario</span>
+                </div>
+                <span class="badge badge-info">3 Models Evaluated</span>
+              </div>
+              <div class="table-responsive">
+                <table class="ops-table">
+                  <thead>
+                    <tr>
+                      <th>Policy</th>
+                      <th>Safely Evacuated</th>
+                      <th>Stranded</th>
+                      <th>Avg. Evacuation Time</th>
+                      <th>Equity Score</th>
+                      <th>Total Cost</th>
+                      <th>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#94a3b8; margin-right:6px;"></span>
+                        Baseline (No Additional Measures)
+                      </td>
+                      <td class="tabular-nums">9,280</td>
+                      <td class="tabular-nums" style="color:var(--accent-danger);">3,210</td>
+                      <td class="tabular-nums">8.1 hrs</td>
+                      <td class="tabular-nums">0.54</td>
+                      <td class="tabular-nums">$4.2M</td>
+                      <td style="color:var(--text-muted); font-size:11px;">Rely on existing infrastructure only.</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:600;">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; margin-right:6px;"></span>
+                        Shelter-First Policy
+                      </td>
+                      <td class="tabular-nums">11,760</td>
+                      <td class="tabular-nums">1,840</td>
+                      <td class="tabular-nums">5.6 hrs</td>
+                      <td class="tabular-nums">0.76</td>
+                      <td class="tabular-nums">$9.8M</td>
+                      <td style="color:var(--text-muted); font-size:11px;">Open all three temporary shelters early.</td>
+                    </tr>
+                    <tr class="highlight-row">
+                      <td style="font-weight:700; color:var(--accent-flood-light);">
+                        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent-safe); margin-right:6px;"></span>
+                        Optimized Policy (AI-Recommended)
+                      </td>
+                      <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">12,480</td>
+                      <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">1,230</td>
+                      <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">4.8 hrs</td>
+                      <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">0.82</td>
+                      <td class="tabular-nums">$12.0M</td>
+                      <td style="color:var(--text-primary); font-size:11px; font-weight:500;">Dynamic routing, staged shelters, and rescue boats.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-col">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+              <div class="metric-card" style="padding:10px;">
+                <div class="metric-card-top">
+                  <span class="metric-label" style="font-size:10px;">Safely Evacuated</span>
+                  <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                </div>
+                <div class="metric-value" id="cc-metric-evac" style="font-size:20px;">12,480</div>
+                <div class="metric-sub positive" style="font-size:10px;">
+                  <span>↑ +34% vs baseline</span>
+                </div>
+              </div>
+
+              <div class="metric-card" style="padding:10px;">
+                <div class="metric-card-top">
+                  <span class="metric-label" style="font-size:10px;">Stranded</span>
+                  <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+                </div>
+                <div class="metric-value" id="cc-metric-stranded" style="font-size:20px; color:var(--accent-danger);">1,230</div>
+                <div class="metric-sub positive" style="font-size:10px;">
+                  <span>↓ -62% vs baseline</span>
+                </div>
+              </div>
+
+              <div class="metric-card" style="padding:10px;">
+                <div class="metric-card-top">
+                  <span class="metric-label" style="font-size:10px;">Avg Evacuation Time</span>
+                  <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <div class="metric-value" id="cc-metric-time" style="font-size:20px;">4.8 <span style="font-size:12px;">hrs</span></div>
+                <div class="metric-sub positive" style="font-size:10px;">
+                  <span>↓ -40% vs baseline</span>
+                </div>
+              </div>
+
+              <div class="metric-card" style="padding:10px;">
+                <div class="metric-card-top">
+                  <span class="metric-label" style="font-size:10px;">Equity Score</span>
+                  <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path></svg>
+                </div>
+                <div class="metric-value" id="cc-metric-equity" style="font-size:20px; color:var(--accent-safe);">0.82</div>
+                <div class="metric-sub positive" style="font-size:10px;">
+                  <span>↑ +0.28 vs baseline</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px;">
+              <div class="card-header" style="margin-bottom:6px; padding-bottom:4px;">
+                <div class="card-title" style="font-size:11.5px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  <span>Evacuation Progress</span>
+                </div>
+              </div>
+              <div id="cc-progress-chart" style="height:120px; width:100%;"></div>
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:6px; margin-top:4px;">
+                <span style="color:var(--accent-safe);">● Evacuated</span>
+                <span style="color:var(--accent-danger);">● Stranded</span>
+                <span>--- Baseline</span>
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px;">
+              <div class="card-header" style="margin-bottom:6px; padding-bottom:4px;">
+                <div class="card-title" style="font-size:11.5px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                  <span>Facility Loads & Assets</span>
+                </div>
+              </div>
+              
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>North Shelter</span>
+                    <strong class="tabular-nums" id="shelter-north-occ">82%</strong>
+                  </div>
+                  <div style="height:4px; background:var(--bg-surface); border-radius:2px; overflow:hidden;">
+                    <div id="bar-north" style="width:82%; height:100%; background:var(--accent-caution);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>West Shelter</span>
+                    <strong class="tabular-nums" id="shelter-west-occ">64%</strong>
+                  </div>
+                  <div style="height:4px; background:var(--bg-surface); border-radius:2px; overflow:hidden;">
+                    <div id="bar-west" style="width:64%; height:100%; background:var(--accent-safe);"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                    <span>Riverside Hospital</span>
+                    <strong class="tabular-nums" id="hospital-load-val">74%</strong>
+                  </div>
+                  <div style="height:4px; background:var(--bg-surface); border-radius:2px; overflow:hidden;">
+                    <div id="bar-hospital" style="width:74%; height:100%; background:var(--accent-flood-light);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="padding:12px; flex:1; overflow-y:auto;">
+              <div class="card-header" style="margin-bottom:6px; padding-bottom:4px;">
+                <div class="card-title" style="font-size:11.5px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path></svg>
+                  <span>Real-Time Alert Feed</span>
+                </div>
+              </div>
+              <div id="cc-alerts-stream">
+                <div class="alert-item alert-danger" style="margin-bottom:4px; padding:6px 8px;">
+                  <div class="alert-time">T+04:12</div>
+                  <div>
+                    <div class="alert-title" style="font-size:11px;">Bridge 3 approaching closure</div>
+                    <div class="alert-desc" style="font-size:10px;">Water at 15cm from lower chord.</div>
+                  </div>
+                </div>
+                <div class="alert-item alert-warning" style="margin-bottom:4px; padding:6px 8px;">
+                  <div class="alert-time">T+05:06</div>
+                  <div>
+                    <div class="alert-title" style="font-size:11px;">North Shelter 82% capacity</div>
+                    <div class="alert-desc" style="font-size:10px;">Intake diverted to East Shelter.</div>
+                  </div>
+                </div>
+                <div class="alert-item alert-info" style="margin-bottom:4px; padding:6px 8px;">
+                  <div class="alert-time">T+02:40</div>
+                  <div>
+                    <div class="alert-title" style="font-size:11px;">16 Rescue Boats in Canal Basin</div>
+                    <div class="alert-desc" style="font-size:10px;">Evacuating stranded residents.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    let cityMap = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const scId = urlParams.get('id');
+      if (scId && window.CrisisState) {
+        window.CrisisState.setActiveScenario(scId);
+      }
+
+      CrisisCommon.initShell("scenarios");
+
+      cityMap = new RivertonCityMap("command-center-map-wrapper", {
+        isCompact: false,
+        showControls: true,
+        showLegend: true
+      });
+
+      CrisisCharts.renderEvacuationProgressChart("cc-progress-chart");
+
+      window.CrisisState.simulation.subscribe(state => {
+        updateCommandCenterUI(state);
+      });
+
+      updateCommandCenterUI(window.CrisisState.simulation.getState());
+    });
+
+    function updateCommandCenterUI(state) {
+      const metrics = window.CrisisState.simulation.getMetrics();
+
+      const playIcon = document.getElementById("play-icon");
+      const playText = document.getElementById("play-text");
+      const playBtn = document.getElementById("btn-sim-play");
+      if (playIcon && playText) {
+        if (state.isRunning) {
+          playIcon.textContent = "❚❚";
+          playText.textContent = "Pause";
+          playBtn.className = "btn btn-secondary btn-sm";
+        } else {
+          playIcon.textContent = "▶";
+          playText.textContent = "Start";
+          playBtn.className = "btn btn-primary btn-sm";
+        }
+      }
+
+      const hours = Math.floor(state.currentTimeHours);
+      const mins = Math.floor((state.currentTimeHours % 1) * 60);
+      const clockStr = `T+${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+      const timeDisplay = document.getElementById("sim-time-display");
+      if (timeDisplay) timeDisplay.textContent = clockStr;
+
+      const scrubber = document.getElementById("sim-time-scrubber");
+      if (scrubber && !scrubber.matches(":active")) {
+        scrubber.value = state.currentTimeHours.toFixed(1);
+      }
+
+      const evacEl = document.getElementById("cc-metric-evac");
+      if (evacEl) evacEl.textContent = metrics.safelyEvacuated.toLocaleString();
+
+      const strandEl = document.getElementById("cc-metric-stranded");
+      if (strandEl) strandEl.textContent = metrics.stranded.toLocaleString();
+
+      const timeEl = document.getElementById("cc-metric-time");
+      if (timeEl) timeEl.innerHTML = `${metrics.avgEvacuationTime} <span style="font-size:12px;">hrs</span>`;
+
+      const eqEl = document.getElementById("cc-metric-equity");
+      if (eqEl) eqEl.textContent = metrics.equityScore;
+
+      const northOcc = document.getElementById("shelter-north-occ");
+      if (northOcc) northOcc.textContent = `${metrics.shelterOccupancy.north}%`;
+      const barNorth = document.getElementById("bar-north");
+      if (barNorth) barNorth.style.width = `${metrics.shelterOccupancy.north}%`;
+
+      const westOcc = document.getElementById("shelter-west-occ");
+      if (westOcc) westOcc.textContent = `${metrics.shelterOccupancy.west}%`;
+      const barWest = document.getElementById("bar-west");
+      if (barWest) barWest.style.width = `${metrics.shelterOccupancy.west}%`;
+
+      const hospOcc = document.getElementById("hospital-load-val");
+      if (hospOcc) hospOcc.textContent = `${metrics.hospitalLoad}%`;
+      const barHosp = document.getElementById("bar-hospital");
+      if (barHosp) barHosp.style.width = `${metrics.hospitalLoad}%`;
+
+      CrisisCharts.renderEvacuationProgressChart("cc-progress-chart");
+    }
+
+    function toggleSimPlay() {
+      const state = window.CrisisState.simulation.getState();
+      if (state.isRunning) {
+        window.CrisisState.simulation.pause();
+        CrisisCommon.showToast("Simulation Paused");
+      } else {
+        window.CrisisState.simulation.start();
+        CrisisCommon.showToast("Simulation Running — Riverton Flood Propagation Active");
+      }
+    }
+
+    function resetSim() {
+      window.CrisisState.simulation.reset();
+      CrisisCommon.showToast("Simulation reset to T+00:00");
+    }
+
+    function scrubSimTime(val) {
+      window.CrisisState.simulation.setTime(Number(val));
+    }
+
+    function setSimSpeed(spd) {
+      window.CrisisState.simulation.setSpeed(spd);
+      [1, 5, 20].forEach(s => {
+        const btn = document.getElementById(`spd-${s}`);
+        if (btn) btn.className = `speed-btn ${s === spd ? 'active' : ''}`;
+      });
+      CrisisCommon.showToast(`Simulation Speed: ${spd}×`);
+    }
+
+    function handlePolicyToggle(policyKey, rowEl) {
+      const checkbox = document.getElementById(`pol-${policyKey}`);
+      const newState = window.CrisisState.simulation.togglePolicy(policyKey);
+      if (checkbox) checkbox.checked = newState;
+
+      const labels = {
+        temporaryShelters: "Temporary Shelter Program",
+        rescueBoats: "Amphibious Rescue Fleet",
+        ambulances: "Medical Ambulance Triage",
+        closeHighRiskRoads: "Bridge 3 Precautionary Barrier",
+        prioritizeVulnerable: "Neighborhood 5 Priority Routing"
+      };
+
+      CrisisCommon.showToast(`Policy applied: ${labels[policyKey] || policyKey} ${newState ? 'ENABLED' : 'DISABLED'}`);
+    }
+
+    function onHazardParamChange(key, val, unit = '') {
+      const displayEl = document.getElementById(`ctrl-${key}-val`);
+      if (displayEl) displayEl.textContent = val + unit;
+      window.CrisisState.simulation.setParam(key, Number(val) || val);
+    }
+  </script>
+</body>
+</html>

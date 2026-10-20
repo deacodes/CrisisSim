@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>City Model Digital Twin — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Synthetic City Digital Twin: Riverton</h1>
+            <div class="page-subtitle">Inspect spatial environment, topological elevations, neighborhood demographics, and infrastructure constraints.</div>
+          </div>
+          <div class="page-actions">
+            <span class="badge badge-info">78,500 Population</span>
+            <span class="badge badge-neutral">42.5 km² Area</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px; padding:10px 14px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Model Layers:</span>
+              <button class="map-layer-btn active" id="btn-layer-pop" onclick="switchModelLayer('pop')">Population Density</button>
+              <button class="map-layer-btn" id="btn-layer-vuln" onclick="switchModelLayer('vuln')">Vulnerability Index</button>
+              <button class="map-layer-btn" id="btn-layer-elev" onclick="switchModelLayer('elev')">Elevation & DEM</button>
+              <button class="map-layer-btn" id="btn-layer-flood" onclick="switchModelLayer('flood')">Flood Hazard</button>
+              <button class="map-layer-btn" id="btn-layer-shelter" onclick="switchModelLayer('shelter')">Shelter Access</button>
+              <button class="map-layer-btn" id="btn-layer-hospital" onclick="switchModelLayer('hospital')">Hospital Access</button>
+              <button class="map-layer-btn" id="btn-layer-road" onclick="switchModelLayer('road')">Road Connectivity</button>
+            </div>
+            <span style="font-size:11.5px; color:var(--text-muted);" id="layer-caption">Showing resident density per hectare</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card" style="padding:0; overflow:hidden; display:flex; flex-direction:column;">
+            <div class="card-header" style="margin:0; padding:10px 16px; background:var(--bg-inset);">
+              <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg>
+                <span>Riverton Spatial Topology</span>
+              </div>
+              <span style="font-size:11px; color:var(--text-muted);">Click any neighborhood to view full demographic profile</span>
+            </div>
+            <div id="city-model-map-wrapper" style="height:480px; width:100%;"></div>
+          </div>
+
+          <div class="card" id="neighborhood-detail-panel" style="display:flex; flex-direction:column;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span id="detail-name">Neighborhood 5 (Canal Basin)</span>
+              </div>
+              <span class="badge badge-danger" id="detail-tier-badge">Critical Vulnerability (0.88)</span>
+            </div>
+
+            <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;">
+              <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div>
+                  <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase;">Total Population</div>
+                  <div class="tabular-nums" style="font-size:18px; font-weight:700;" id="detail-pop">9,800</div>
+                </div>
+                <div>
+                  <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase;">Ground Elevation</div>
+                  <div class="tabular-nums" style="font-size:18px; font-weight:700;" id="detail-elev">2.7 m ASL</div>
+                </div>
+                <div>
+                  <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase;">Projected Flood Depth</div>
+                  <div class="tabular-nums" style="font-size:18px; font-weight:700; color:var(--accent-danger);" id="detail-flood">2.8 m (Critical)</div>
+                </div>
+                <div>
+                  <div style="font-size:10.5px; color:var(--text-muted); text-transform:uppercase;">Safe Transit Time</div>
+                  <div class="tabular-nums" style="font-size:18px; font-weight:700;" id="detail-time">5.9 hrs</div>
+                </div>
+              </div>
+
+              <div>
+                <h4 style="font-size:11.5px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; font-weight:700;">Demographic Equity Indicators</h4>
+                <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+                  <div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                      <span>Transit-Dependent (No Household Vehicle)</span>
+                      <strong class="tabular-nums" id="detail-transit">58%</strong>
+                    </div>
+                    <div style="height:4px; background:var(--bg-surface); border-radius:2px;"><div id="bar-transit" style="width:58%; height:100%; background:var(--accent-caution);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                      <span>Elderly Residents (Age 65+)</span>
+                      <strong class="tabular-nums" id="detail-elderly">29%</strong>
+                    </div>
+                    <div style="height:4px; background:var(--bg-surface); border-radius:2px;"><div id="bar-elderly" style="width:29%; height:100%; background:var(--accent-flood-light);"></div></div>
+                  </div>
+                  <div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                      <span>Mobility Impaired Residents</span>
+                      <strong class="tabular-nums" id="detail-mobility">14%</strong>
+                    </div>
+                    <div style="height:4px; background:var(--bg-surface); border-radius:2px;"><div id="bar-mobility" style="width:14%; height:100%; background:var(--accent-danger);"></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="padding:10px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); font-size:11.5px;">
+                <div style="margin-bottom:4px;">
+                  <strong style="color:var(--text-primary);">Nearest Designated Shelter:</strong>
+                  <span id="detail-shelter">East Shelter (4.2 km distance)</span>
+                </div>
+                <div style="color:var(--text-secondary); line-height:1.4;" id="detail-notes">
+                  Bridge 3 is the sole arterial corridor out of Neighborhood 5. If water exceeds 0.2m over the deck, 9,800 residents become completely cut off.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px; padding:0; overflow:hidden;">
+          <div class="card-header" style="padding:12px 16px; margin:0; background:var(--bg-inset);">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+              <span>Critical Municipal Infrastructure Inventory</span>
+            </div>
+            <span class="badge badge-info">Riverton Civil Works</span>
+          </div>
+          <div class="table-responsive">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>Facility / Asset</th>
+                  <th>Type</th>
+                  <th>Location & Zone</th>
+                  <th>Design Capacity</th>
+                  <th>Current Load / Status</th>
+                  <th>Flood Vulnerability</th>
+                  <th>Redundancy</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600;">North Shelter (Civic Arena)</td>
+                  <td>Primary Shelter</td>
+                  <td>North Hills (14.8m ASL)</td>
+                  <td class="tabular-nums">3,500 Persons</td>
+                  <td><span class="badge badge-warning">2,870 (82%)</span></td>
+                  <td>Minimal (High ground elevation)</td>
+                  <td>3 Diesel Generators • Medical triage</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">West Shelter (High School)</td>
+                  <td>Auxiliary Shelter</td>
+                  <td>West End Heights (11.5m ASL)</td>
+                  <td class="tabular-nums">2,800 Persons</td>
+                  <td><span class="badge badge-success">1,792 (64%)</span></td>
+                  <td>Low (Grade-separated access)</td>
+                  <td>2 Backup Generators • Kitchen staffed</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">East Shelter (Community Pavilion)</td>
+                  <td>Auxiliary Shelter</td>
+                  <td>Eastside Flats (5.8m ASL)</td>
+                  <td class="tabular-nums">2,200 Persons</td>
+                  <td><span class="badge badge-success">1,122 (51%)</span></td>
+                  <td>Moderate (Perimeter sandbags active)</td>
+                  <td>2 Portable generators • Water tank</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Riverside General Hospital</td>
+                  <td>Acute Medical Care</td>
+                  <td>Downtown Waterfront (6.2m ASL)</td>
+                  <td class="tabular-nums">420 Beds (45 ICU)</td>
+                  <td><span class="badge badge-warning">310 Beds (74%)</span></td>
+                  <td>High (Perimeter flood barriers deployed)</td>
+                  <td>Dual substations + elevated rooftop power</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Bridge 3 (Canal Bottleneck)</td>
+                  <td>Critical Artery</td>
+                  <td>Canal Basin / N5 Link</td>
+                  <td class="tabular-nums">1,200 veh/hr (2 lanes)</td>
+                  <td><span class="badge badge-danger">Imminent Closure (15cm to deck)</span></td>
+                  <td>Severe (Lowest clearance bridge in Riverton)</td>
+                  <td>No backup bridge; requires pontoon ferry</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              <span>Synthetic Data & Calibration Architecture</span>
+            </div>
+            <span class="badge badge-neutral">Educational Methodology</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-secondary); line-height:1.55; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div>
+              <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">Spatial Synthesis</strong>
+              Riverton is a synthetic digital twin constructed using open-source topological primitives and calibrated urban parameters. Topography follows a 10-meter Digital Elevation Model (DEM) with a meandering river valley and engineered canal basins. Road networks are structured with graph theory algorithms to replicate common transit choke-points.
+            </div>
+            <div>
+              <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">Sociodemographic Calibration</strong>
+              Demographic variables (vehicle ownership, age, mobility impairment, English proficiency, and household income) are calibrated against national census percentiles to model realistic disparities in evacuation capability and vulnerability.
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    let cityMap = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("city-model");
+
+      cityMap = new RivertonCityMap("city-model-map-wrapper", {
+        isCompact: false,
+        showControls: false,
+        showLegend: true,
+        onNeighborhoodClick: (id) => loadNeighborhoodDetail(id)
+      });
+
+      loadNeighborhoodDetail("N5");
+    });
+
+    function loadNeighborhoodDetail(id) {
+      const n = (window.CrisisData?.NEIGHBORHOODS || []).find(item => item.id === id);
+      if (!n) return;
+
+      document.getElementById("detail-name").textContent = n.name;
+      document.getElementById("detail-pop").textContent = n.population.toLocaleString();
+      document.getElementById("detail-elev").textContent = `${n.elevation} m ASL`;
+      document.getElementById("detail-flood").textContent = `${n.projectedFloodDepth} m (${n.floodExposure})`;
+      document.getElementById("detail-time").textContent = `${n.estimatedSafeTravelTime} hrs`;
+      document.getElementById("detail-transit").textContent = `${n.transitDependentPct}%`;
+      document.getElementById("detail-elderly").textContent = `${n.elderlyPct}%`;
+      document.getElementById("detail-mobility").textContent = `${n.mobilityImpairedPct}%`;
+
+      document.getElementById("bar-transit").style.width = `${n.transitDependentPct}%`;
+      document.getElementById("bar-elderly").style.width = `${n.elderlyPct}%`;
+      document.getElementById("bar-mobility").style.width = `${n.mobilityImpairedPct}%`;
+
+      document.getElementById("detail-shelter").textContent = `${n.nearestShelter} (${n.shelterDistanceKm} km)`;
+      document.getElementById("detail-notes").textContent = n.riskFactors?.join(" • ") || "Normal residential zoning profile.";
+
+      const badge = document.getElementById("detail-tier-badge");
+      badge.className = `badge ${n.vulnerabilityScore > 0.7 ? 'badge-danger' : (n.vulnerabilityScore > 0.4 ? 'badge-warning' : 'badge-success')}`;
+      badge.textContent = `${n.vulnerabilityTier} Vulnerability (${n.vulnerabilityScore})`;
+
+      if (cityMap) cityMap.selectNeighborhood(id);
+    }
+
+    function switchModelLayer(layer) {
+      const buttons = ["pop", "vuln", "elev", "flood", "shelter", "hospital", "road"];
+      buttons.forEach(b => {
+        const btn = document.getElementById(`btn-layer-${b}`);
+        if (btn) btn.classList.toggle("active", b === layer);
+      });
+
+      const captions = {
+        pop: "Displaying resident density per hectare across Riverton",
+        vuln: "Highlighting high vulnerability zones and transit deserts",
+        elev: "Rendering topographic digital elevation model (meters ASL)",
+        flood: "Showing hydrodynamic flood inundation contours",
+        shelter: "Visualizing designated shelters and catchment buffers",
+        hospital: "Showing acute trauma centers and ambulance radii",
+        road: "Displaying bridge clearances and arterial capacities"
+      };
+
+      document.getElementById("layer-caption").textContent = captions[layer] || "";
+      CrisisCommon.showToast(`Active map perspective: ${layer.toUpperCase()}`);
+    }
+  </script>
+</body>
+</html>
