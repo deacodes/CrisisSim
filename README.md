@@ -70,4 +70,4 @@ python -m backend.verification
 
 CrisisSim uses a synthetic city for educational decision support. It is not an official emergency forecast or dispatch system.
 
-**Developed independently as a hackathon project.**
+**Developed independently for the Eureka Dev Hackathon 2026
