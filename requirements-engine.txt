@@ -1,0 +1,11 @@
+# Tested on CPython 3.11.15, macOS arm64.
+# Engine-stage direct dependencies; service/deployment dependencies follow later.
+anuga==4.0.1
+numpy==2.4.6
+scipy==1.17.1
+pydantic==2.14.1
+networkx==3.6.1
+shapely==2.2.0
+ortools==9.15.6755
+pytest==9.1.1
+hypothesis==6.170.5
