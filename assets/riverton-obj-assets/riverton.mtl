@@ -1,0 +1,35 @@
+# Original CrisisSim Riverton low-poly materials
+newmtl concrete
+Kd 0.38 0.45 0.53
+newmtl roof
+Kd 0.12 0.18 0.25
+newmtl glass
+Kd 0.22 0.66 0.82
+Ks 0.35 0.55 0.64
+Ns 80
+newmtl white
+Kd 0.91 0.94 0.97
+newmtl red
+Kd 0.88 0.16 0.18
+newmtl teal
+Kd 0.05 0.62 0.45
+newmtl orange
+Kd 0.96 0.46 0.05
+newmtl yellow
+Kd 0.95 0.68 0.07
+newmtl foliage
+Kd 0.13 0.42 0.25
+newmtl trunk
+Kd 0.32 0.18 0.10
+newmtl road
+Kd 0.14 0.20 0.27
+newmtl grass
+Kd 0.16 0.36 0.22
+newmtl black
+Kd 0.025 0.035 0.05
+newmtl brick_red
+Kd 0.58 0.23 0.16
+newmtl brick_ochre
+Kd 0.72 0.45 0.18
+newmtl bluegray
+Kd 0.22 0.35 0.47
