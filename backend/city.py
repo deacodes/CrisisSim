@@ -43,7 +43,8 @@ def build_city():
                     "geometry": [[a["x"], a["y"]], [b["x"], b["y"]]],
                     "length_m": math.hypot(a["x"]-b["x"], a["y"]-b["y"]),
                     "bridge": bool(crossing), "speed_m_s": 10.0,
-                    "capacity_vehicles_s": 0.5, "storage_vehicles": 40,
+                    "capacity_vehicles_s": 0.5,
+                    "storage_vehicles": 0.15 * math.hypot(a["x"]-b["x"], a["y"]-b["y"]),
                     "provenance": "assumed",
                 })
     neighborhoods = []
