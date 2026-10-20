@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uncertainty Analysis — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+                <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Monte Carlo Uncertainty & Sensitivity Analysis</h1>
+            <div class="page-subtitle">Evaluate policy robustness across stochastic weather anomalies, warning delays, and resident behavior variations.</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm" onclick="runMonteCarlo()">Execute Monte Carlo Simulation</button>
+          </div>
+        </div>
+
+                <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span>Monte Carlo Sampling Configuration</span>
+            </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Iterations:</span>
+              <div class="speed-btn-group">
+                <button class="speed-btn" id="mc-10" onclick="setMCRuns(10)">10 Runs</button>
+                <button class="speed-btn active" id="mc-50" onclick="setMCRuns(50)">50 Runs</button>
+                <button class="speed-btn" id="mc-100" onclick="setMCRuns(100)">100 Runs</button>
+              </div>
+            </div>
+          </div>
+
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:12px;">
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Rainfall Var.</span>
+                <span class="slider-val">±20%</span>
+              </div>
+              <input type="range" min="5" max="40" value="20">
+              <div style="font-size:9.5px; color:var(--text-muted); text-align:center;">72 to 108 mm/h</div>
+            </div>
+
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Warning Jitter</span>
+                <span class="slider-val">±2.0h</span>
+              </div>
+              <input type="range" min="0.5" max="5" value="2">
+              <div style="font-size:9.5px; color:var(--text-muted); text-align:center;">4.0h to 8.0h</div>
+            </div>
+
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Response Delay</span>
+                <span class="slider-val">30 min</span>
+              </div>
+              <input type="range" min="0" max="60" value="30">
+              <div style="font-size:9.5px; color:var(--text-muted); text-align:center;">Dispatch lag</div>
+            </div>
+
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Shelter Var.</span>
+                <span class="slider-val">±15%</span>
+              </div>
+              <input type="range" min="5" max="30" value="15">
+              <div style="font-size:9.5px; color:var(--text-muted); text-align:center;">Staffing buffer</div>
+            </div>
+
+            <div class="slider-container">
+              <div class="slider-header">
+                <span>Compliance</span>
+                <span class="slider-val">85%</span>
+              </div>
+              <input type="range" min="50" max="95" value="85">
+              <div style="font-size:9.5px; color:var(--text-muted); text-align:center;">Evacuation order</div>
+            </div>
+          </div>
+        </div>
+
+                <div class="product-statement-banner" style="background:rgba(16, 185, 129, 0.08); border-color:rgba(16, 185, 129, 0.3);">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div style="font-size:20px;">📊</div>
+            <div>
+              <div class="product-statement-text" style="color:var(--accent-safe); font-size:14px;">
+                Optimized policy: 86% ± 5% safely evacuated (95% Confidence Interval)
+              </div>
+              <div class="product-statement-sub">
+                Based on 100 stochastic Latin Hypercube iterations, the optimized policy maintains a >80% life-safety floor even under 95th-percentile compound flood events.
+              </div>
+            </div>
+          </div>
+          <span class="badge badge-success">Robust Strategy</span>
+        </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+                    <div class="card">
+            <div class="card-header">
+              <div class="card-title">Evacuation Success Probability Distribution</div>
+              <span class="badge badge-info">PDF Curve</span>
+            </div>
+            <div id="chart-mc-distribution" style="height:190px;"></div>
+            <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Shaded cyan zone denotes 95% Confidence Interval [81.6% to 91.2%]. Mean: 86.4%.
+            </div>
+          </div>
+
+                    <div class="card">
+            <div class="card-header">
+              <div class="card-title">Parameter Sensitivity Ranking (Tornado Diagram)</div>
+              <span class="badge badge-warning">Sobol Indices</span>
+            </div>
+            <div id="chart-sensitivity-tornado" style="height:190px;"></div>
+            <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Variables ranked by variance contribution to stranded resident count.
+            </div>
+          </div>
+        </div>
+
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+                    <div class="card" style="border-top:1px solid var(--border-subtle); background:var(--bg-card);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="badge badge-success">Best-Case Outcome</span>
+              <span class="badge badge-neutral">15% Probability</span>
+            </div>
+            <strong style="font-size:14px; color:var(--text-primary); display:block; margin-bottom:4px;">
+              Early Warning + Dry Soils
+            </strong>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
+              Optimal evacuation conditions with 8-hour lead time and maximum public order compliance.
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px; background:var(--bg-inset); padding:10px; border-radius:var(--radius-xs);">
+              <div>Safely Evac: <strong class="tabular-nums" style="color:var(--accent-safe);">13,240 (96%)</strong></div>
+              <div>Stranded: <strong class="tabular-nums">470</strong></div>
+              <div>Avg Time: <strong class="tabular-nums">3.6 hrs</strong></div>
+              <div>Equity Score: <strong class="tabular-nums" style="color:var(--accent-safe);">0.91</strong></div>
+            </div>
+          </div>
+
+                    <div class="card" style="border-top:1px solid var(--border-subtle); background:var(--bg-surface);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="badge badge-info">Expected / Median Case</span>
+              <span class="badge badge-info">70% Probability</span>
+            </div>
+            <strong style="font-size:14px; color:var(--accent-flood-light); display:block; margin-bottom:4px;">
+              Calibrated Riverton Flood
+            </strong>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
+              Standard Category 3 flood crest with Bridge 3 closure at Hour 4.2 and active rescue boats.
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px; background:var(--bg-inset); padding:10px; border-radius:var(--radius-xs);">
+              <div>Safely Evac: <strong class="tabular-nums" style="color:var(--accent-safe);">12,480 (91%)</strong></div>
+              <div>Stranded: <strong class="tabular-nums">1,230</strong></div>
+              <div>Avg Time: <strong class="tabular-nums">4.8 hrs</strong></div>
+              <div>Equity Score: <strong class="tabular-nums" style="color:var(--accent-safe);">0.82</strong></div>
+            </div>
+          </div>
+
+                    <div class="card" style="border-top:1px solid var(--border-subtle); background:var(--bg-card);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <span class="badge badge-danger">Worst-Case Stress Test</span>
+              <span class="badge badge-neutral">15% Probability</span>
+            </div>
+            <strong style="font-size:14px; color:var(--accent-danger); display:block; margin-bottom:4px;">
+              Sudden Crest + Nightfall
+            </strong>
+            <div style="font-size:11px; color:var(--text-muted); margin-bottom:12px;">
+              Severe flash dam surge with only 1.5h warning and early communication network failure.
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:12px; background:var(--bg-inset); padding:10px; border-radius:var(--radius-xs);">
+              <div>Safely Evac: <strong class="tabular-nums" style="color:var(--accent-caution);">10,190 (74%)</strong></div>
+              <div>Stranded: <strong class="tabular-nums" style="color:var(--accent-danger);">3,520</strong></div>
+              <div>Avg Time: <strong class="tabular-nums">7.9 hrs</strong></div>
+              <div>Equity Score: <strong class="tabular-nums">0.63</strong></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("uncertainty");
+      CrisisCharts.renderMonteCarloDistribution("chart-mc-distribution");
+      CrisisCharts.renderSensitivityTornado("chart-sensitivity-tornado");
+    });
+
+    function setMCRuns(runs) {
+      [10, 50, 100].forEach(r => {
+        const btn = document.getElementById(`mc-${r}`);
+        if (btn) btn.classList.toggle("active", r === runs);
+      });
+      CrisisCommon.showToast(`Configured Monte Carlo sampling: ${runs} Latin Hypercube runs`);
+    }
+
+    function runMonteCarlo() {
+      CrisisCommon.showToast("Executing stochastic Monte Carlo ensemble across Riverton digital twin...");
+      setTimeout(() => {
+        CrisisCharts.renderMonteCarloDistribution("chart-mc-distribution");
+        CrisisCharts.renderSensitivityTornado("chart-sensitivity-tornado");
+        CrisisCommon.showToast("Monte Carlo run complete! 95% CI: 86% ± 5% safely evacuated.");
+      }, 800);
+    }
+  </script>
+</body>
+</html>

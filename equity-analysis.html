@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equity Analysis — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Neighborhood Equity & Vulnerability Assessment</h1>
+            <div class="page-subtitle">Examine spatial and demographic disparities in evacuation access, transit availability, and response resources.</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary btn-sm" onclick="exportEquityReport()">Export Equity Brief</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px; background:var(--bg-card); border-color:var(--border-strong);">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:20px;">
+              <div style="text-align:center; padding:12px 20px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Overall Equity Score</div>
+                <div class="tabular-nums" style="font-size:36px; font-weight:800; color:var(--accent-safe); line-height:1.1;">0.82</div>
+                <div style="font-size:11px; color:var(--accent-safe); font-weight:600;">+0.28 vs Baseline (0.54)</div>
+              </div>
+              <div style="max-width:700px;">
+                <h3 style="font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">
+                  What Does an Equity Score of 0.82 Mean?
+                </h3>
+                <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+                  CrisisSim evaluates fairness using a normalized Gini parity metric on a <strong>0.00 to 1.00</strong> scale. A score of <strong>1.00</strong> represents complete parity where transit wait times and evacuation survival are equal across all income and mobility tiers. In the baseline policy (0.54), low-income canal basin residents faced a <strong>3.4× higher stranded risk</strong> than hillside homeowners. Under the active optimized strategy (0.82), that disparity ratio has been compressed to <strong>1.2×</strong>.
+                </p>
+              </div>
+            </div>
+            <span class="badge badge-success" style="font-size:12px; padding:6px 10px;">Substantial Parity Improvement</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card" style="border-color:rgba(239, 68, 68, 0.4); background:rgba(239, 68, 68, 0.04);">
+            <div class="card-header">
+              <div class="card-title" style="color:var(--accent-danger);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span>Key Operational Finding</span>
+              </div>
+              <span class="badge badge-danger">Critical Disparity Identified</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">
+                Neighborhood 5 has the longest average evacuation time because Bridge 3 is its only direct route to a safe shelter.
+              </strong>
+              With 58% transit-dependent residents and 29% elderly individuals, Neighborhood 5 suffers an average wait time of <strong>5.9 hours</strong>. When Bridge 3 closes at Hour 4.2 due to river overtopping, unassisted egress drops to zero.
+            </div>
+          </div>
+
+          <div class="card" style="border-color:rgba(16, 185, 129, 0.4); background:rgba(16, 185, 129, 0.04);">
+            <div class="card-header">
+              <div class="card-title" style="color:var(--accent-safe);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span>Recommended Corrective Action</span>
+              </div>
+              <span class="badge badge-success">Targeted Mitigation</span>
+            </div>
+            <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">
+                Open Temporary Auxiliary Shelter inside Neighborhood 5 & Pre-Stage High-Water Shuttles
+              </strong>
+              Deploying 12 municipal shuttle buses prior to Hour 3 and converting the Canal Community Center into an auxiliary dry refuge reduces average evacuation time by <strong>2.1 hours</strong> and elevates district survival to <strong>89.4%</strong>.
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Evacuation Success by Vulnerability Group</div>
+              <span class="badge badge-info">Baseline vs. Optimized</span>
+            </div>
+            <div id="chart-disparity-bars" style="height:190px;"></div>
+            <div style="display:flex; justify-content:center; gap:20px; font-size:11px; margin-top:8px;">
+              <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; background:#64748b; border-radius:2px;"></span> Baseline Policy</span>
+              <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; background:var(--accent-safe); border-radius:2px;"></span> Optimized Policy</span>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0; overflow:hidden; display:flex; flex-direction:column;">
+            <div class="card-header" style="margin:0; padding:10px 14px; background:var(--bg-inset);">
+              <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg>
+                <span>Spatial Disparity Map (High-Risk & Under-Resourced Zones)</span>
+              </div>
+              <span class="badge badge-danger">Red = N5 Bottleneck</span>
+            </div>
+            <div id="equity-map-wrapper" style="height:230px; width:100%;"></div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div class="card-header" style="padding:12px 16px; margin:0; background:var(--bg-inset);">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+              <span>Riverton Neighborhood Demographic & Resource Equity Table</span>
+            </div>
+            <span class="badge badge-info">8 Districts Tracked</span>
+          </div>
+          <div class="table-responsive">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>Neighborhood</th>
+                  <th>Population</th>
+                  <th>Vulnerability Score</th>
+                  <th>Evac Success Rate</th>
+                  <th>Average Wait Time</th>
+                  <th>Stranded %</th>
+                  <th>Nearest Shelter</th>
+                  <th>Resources / 1k Pop</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(window.CrisisData?.NEIGHBORHOODS || []).map(n => `
+                  <tr class="${n.id === 'N5' ? 'highlight-row' : ''}">
+                    <td>
+                      <strong style="color:var(--text-primary);">${n.name}</strong>
+                      <div style="font-size:10.5px; color:var(--text-muted);">${n.code}</div>
+                    </td>
+                    <td class="tabular-nums">${n.population.toLocaleString()}</td>
+                    <td>
+                      <span class="badge ${n.vulnerabilityScore > 0.7 ? 'badge-danger' : (n.vulnerabilityScore > 0.4 ? 'badge-warning' : 'badge-success')}">
+                        ${n.vulnerabilityScore} (${n.vulnerabilityTier})
+                      </span>
+                    </td>
+                    <td class="tabular-nums" style="font-weight:700; color:${n.evacuationSuccessRate > 85 ? 'var(--accent-safe)' : 'var(--accent-danger)'};">
+                      ${n.evacuationSuccessRate}%
+                    </td>
+                    <td class="tabular-nums">${n.estimatedSafeTravelTime} hrs</td>
+                    <td class="tabular-nums" style="color:${(100 - n.evacuationSuccessRate) > 20 ? 'var(--accent-danger)' : 'var(--text-muted)'};">
+                      ${(100 - n.evacuationSuccessRate).toFixed(1)}%
+                    </td>
+                    <td>${n.nearestShelter} (${n.shelterDistanceKm} km)</td>
+                    <td class="tabular-nums" style="font-weight:600;">
+                      ${n.resourcesPer1k} units
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("equity");
+      CrisisCharts.renderEquityDisparityBarChart("chart-disparity-bars");
+      new RivertonCityMap("equity-map-wrapper", {
+        isCompact: true,
+        showControls: false,
+        showLegend: false
+      });
+    });
+
+    function exportEquityReport() {
+      CrisisCommon.showToast("Exporting Neighborhood Equity Brief (PDF / Print layout)");
+      window.print();
+    }
+  </script>
+</body>
+</html>

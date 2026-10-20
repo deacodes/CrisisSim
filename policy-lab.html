@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Policy Lab — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Policy Lab: Strategy Builder & Pareto Comparison</h1>
+            <div class="page-subtitle">Test and optimize multi-dimensional emergency policies across life safety, cost, speed, and neighborhood equity.</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm" onclick="applyCustomPolicy()">Run Policy Simulation</button>
+          </div>
+        </div>
+
+        <div class="product-statement-banner">
+          <div>
+            <div class="product-statement-text">Heuristic Optimization Decision Support</div>
+            <div class="product-statement-sub">Optimization algorithms evaluate trade-offs using local deterministic multi-objective scoring without external AI or cloud APIs.</div>
+          </div>
+          <span class="badge badge-info">Deterministic Engine</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:20px;">
+          <div class="card" style="border-color:var(--border-subtle);" onclick="selectPolicyCard('baseline')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="font-size:12px;">Baseline</strong>
+              <span class="badge badge-neutral">Minimal</span>
+            </div>
+            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--text-muted);">$4.2M</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+              Safe: <strong>74%</strong> • Equity: <strong>0.54</strong>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:var(--border-subtle);" onclick="selectPolicyCard('shelter')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="font-size:12px;">Shelter-First</strong>
+              <span class="badge badge-info">Capacity</span>
+            </div>
+            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--accent-flood-light);">$9.8M</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+              Safe: <strong>86%</strong> • Equity: <strong>0.76</strong>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:var(--border-subtle);" onclick="selectPolicyCard('cost')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="font-size:12px;">Cost-Cap</strong>
+              <span class="badge badge-neutral">Strict $5.5M</span>
+            </div>
+            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--accent-purple);">$5.5M</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+              Safe: <strong>78%</strong> • Equity: <strong>0.61</strong>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:var(--border-subtle);" onclick="selectPolicyCard('equity')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="font-size:12px;">Equity-First</strong>
+              <span class="badge badge-success">Fairest</span>
+            </div>
+            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--accent-safe);">$11.2M</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+              Safe: <strong>90%</strong> • Equity: <strong>0.89</strong>
+            </div>
+          </div>
+
+          <div class="card" style="border-color:var(--accent-flood-light); background:var(--bg-surface);" onclick="selectPolicyCard('optimized')">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+              <strong style="font-size:12px; color:var(--accent-flood-light);">Optimized</strong>
+              <span class="badge badge-info">Balanced</span>
+            </div>
+            <div style="font-size:18px; font-weight:700; font-family:var(--font-mono); color:var(--accent-flood-light);">$12.0M</div>
+            <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+              Safe: <strong style="color:var(--accent-safe);">91%</strong> • Equity: <strong>0.82</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px; padding:0; overflow:hidden;">
+          <div class="card-header" style="padding:12px 16px; margin:0; background:var(--bg-inset);">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              <span>Multi-Criteria Strategy Comparison Matrix</span>
+            </div>
+            <span class="badge badge-info">5 Strategies Calibrated</span>
+          </div>
+          <div class="table-responsive">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>Strategy</th>
+                  <th>Safe Evacuation Rate</th>
+                  <th>Stranded Residents</th>
+                  <th>Avg. Time</th>
+                  <th>Shelter Overflow</th>
+                  <th>Equity Score</th>
+                  <th>Total Cost</th>
+                  <th>Primary Mechanism</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight:600;">Baseline Policy</td>
+                  <td class="tabular-nums">74.3% (9,280)</td>
+                  <td class="tabular-nums" style="color:var(--accent-danger);">3,210</td>
+                  <td class="tabular-nums">8.1 hrs</td>
+                  <td class="tabular-nums" style="color:var(--accent-danger);">28% overflow</td>
+                  <td class="tabular-nums">0.54</td>
+                  <td class="tabular-nums">$4.2M</td>
+                  <td>Existing infrastructure and unassisted evacuation</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Shelter-First</td>
+                  <td class="tabular-nums">86.5% (11,760)</td>
+                  <td class="tabular-nums">1,840</td>
+                  <td class="tabular-nums">5.6 hrs</td>
+                  <td class="tabular-nums">6% overflow</td>
+                  <td class="tabular-nums">0.76</td>
+                  <td class="tabular-nums">$9.8M</td>
+                  <td>Early activation of 3 auxiliary neighborhood pavilions</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600;">Cost-Constrained</td>
+                  <td class="tabular-nums">78.4% (10,100)</td>
+                  <td class="tabular-nums">2,690</td>
+                  <td class="tabular-nums">7.2 hrs</td>
+                  <td class="tabular-nums">18% overflow</td>
+                  <td class="tabular-nums">0.61</td>
+                  <td class="tabular-nums">$5.5M</td>
+                  <td>Optimized police traffic control & timed bridge signals</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:600; color:var(--accent-safe);">Equity-First Policy</td>
+                  <td class="tabular-nums">89.9% (12,150)</td>
+                  <td class="tabular-nums">1,360</td>
+                  <td class="tabular-nums">5.1 hrs</td>
+                  <td class="tabular-nums">4% overflow</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">0.89</td>
+                  <td class="tabular-nums">$11.2M</td>
+                  <td>Dedicated shuttles & boats assigned to N5 & Eastside</td>
+                </tr>
+                <tr class="highlight-row">
+                  <td style="font-weight:700; color:var(--accent-flood-light);">Optimized Response (AI)</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">91.0% (12,480)</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">1,230</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">4.8 hrs</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe);">2% overflow</td>
+                  <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">0.82</td>
+                  <td class="tabular-nums">$12.0M</td>
+                  <td>Dynamic routing, mobile barriers, staged shelters & boats</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Cost vs. Life Safety (Pareto Frontier)</div>
+              <span class="badge badge-info">Budget Efficiency</span>
+            </div>
+            <div id="chart-cost-safety" style="height:220px;"></div>
+            <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Dashed line illustrates efficiency frontier. Above line = superior outcome per dollar.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Equity Score vs. Evacuation Time</div>
+              <span class="badge badge-success">Fairness & Speed</span>
+            </div>
+            <div id="chart-equity-time" style="height:220px;"></div>
+            <div style="font-size:11px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Top-left quadrant represents ideal operations: fast evacuation with high equity parity.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+              <span>Automated Strategy Recommendation Synthesis</span>
+            </div>
+            <span class="badge badge-success">Multi-Objective Solution</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+            <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <span class="badge badge-info" style="margin-bottom:6px;">Safest Strategy</span>
+              <strong style="display:block; font-size:13px; color:var(--text-primary); margin-bottom:2px;">Optimized Response</strong>
+              <div style="font-size:11px; color:var(--text-secondary);">
+                Rescues 12,480 (91.0%) with only 1,230 stranded through dynamic route recalculation.
+              </div>
+            </div>
+
+            <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <span class="badge badge-neutral" style="margin-bottom:6px;">Cheapest Strategy</span>
+              <strong style="display:block; font-size:13px; color:var(--text-primary); margin-bottom:2px;">Baseline ($4.2M)</strong>
+              <div style="font-size:11px; color:var(--text-secondary);">
+                Requires zero additional equipment, but leaves 3,210 residents stranded in flood zones.
+              </div>
+            </div>
+
+            <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+              <span class="badge badge-success" style="margin-bottom:6px;">Fairest Strategy</span>
+              <strong style="display:block; font-size:13px; color:var(--text-primary); margin-bottom:2px;">Equity-First (0.89)</strong>
+              <div style="font-size:11px; color:var(--text-secondary);">
+                Virtually eliminates disparity between affluent heights and transit-dependent canal basins.
+              </div>
+            </div>
+
+            <div style="background:var(--bg-inset); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);">
+              <span class="badge badge-info" style="margin-bottom:6px;">Best Balanced Option</span>
+              <strong style="display:block; font-size:13px; color:var(--accent-flood-light); margin-bottom:2px;">Optimized Response</strong>
+              <div style="font-size:11px; color:var(--text-secondary);">
+                Achieves 91% life safety, 0.82 equity, and 4.8 hr transit time for $12M municipal allocation.
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("policy-lab");
+      CrisisCharts.renderCostVsSafetyChart("chart-cost-safety");
+      CrisisCharts.renderEquityVsTimeChart("chart-equity-time");
+    });
+
+    function selectPolicyCard(policyKey) {
+      CrisisCommon.showToast(`Selected ${policyKey.toUpperCase()} policy template for inspection`);
+    }
+
+    function applyCustomPolicy() {
+      CrisisCommon.showToast("Re-evaluating Pareto efficiency across 10,000 synthetic agents...");
+      setTimeout(() => {
+        CrisisCommon.showToast("Heuristic run complete: Optimal frontier calibrated!");
+      }, 700);
+    }
+  </script>
+</body>
+</html>
