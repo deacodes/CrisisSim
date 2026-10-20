@@ -117,7 +117,7 @@
           <div class="card" style="margin-bottom:20px;">
             <div class="card-header">
               <div class="card-title">Select Hazard Model</div>
-              <span class="badge badge-info">Riverton Digital Twin</span>
+              <span class="badge badge-info">Riverton City Model</span>
             </div>
             <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:14px; margin-bottom:16px;">
                             <div class="hazard-card selected" onclick="selectHazard('Flood')">
@@ -348,7 +348,7 @@
                 </div>
 
                 <div style="margin-top:14px; padding:10px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); font-size:11.5px;">
-                  <strong style="color:var(--accent-flood-light);">Digital Twin Prediction:</strong>
+                  <strong style="color:var(--accent-flood-light);">Simulation projection:</strong>
                   Riverton flood stage will peak at Hour 11.8 with estimated river crest of 6.8m. Critical arterial bottleneck expected at Bridge 3 at Hour 4.2.
                 </div>
               </div>
@@ -462,7 +462,7 @@
       };
 
       const created = window.CrisisState.createScenario(newSc);
-      CrisisCommon.showToast("Scenario created and saved to local digital twin!");
+      CrisisCommon.showToast("Scenario created and saved to the local simulation.");
       setTimeout(() => {
         window.location.href = `command-center.html?id=${created.id}`;
       }, 300);

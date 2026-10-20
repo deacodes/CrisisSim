@@ -64,10 +64,10 @@
 
     let navHtml = `
       <div class="sidebar-header">
-        <a href="index.html" class="brand-badge" title="CrisisSim Digital Twin">
+        <a href="index.html" class="brand-badge" title="CrisisSim Emergency Planning">
           <div>
             <div class="brand-text">CrisisSim</div>
-            <span class="brand-sub">Emergency Twin</span>
+            <span class="brand-sub">Emergency Planning</span>
           </div>
         </a>
         <button class="sidebar-collapse-btn" onclick="CrisisCommon.toggleSidebarCollapse()" title="Toggle Sidebar Width">
@@ -96,7 +96,7 @@
       <div class="sidebar-footer">
         <div class="footer-disclaimer-box">
           <strong style="display:block; margin-bottom:2px; color:var(--text-primary); font-size:10px;">Educational Support</strong>
-          Synthetic Riverton twin for decision exploration. Not official dispatch.
+          Synthetic Riverton model for decision exploration. Not official dispatch.
         </div>
       </div>
     `;
@@ -126,6 +126,7 @@
     const hours = Math.floor(simState.currentTimeHours || 8);
     const mins = Math.floor(((simState.currentTimeHours || 8) % 1) * 60);
     const clockStr = `T+${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+    const isCommandCenter = activePageId === "command-center";
 
     header.innerHTML = `
       <div class="header-left">
@@ -150,10 +151,12 @@
       </div>
 
       <div class="header-right">
-        <a href="command-center.html" class="btn btn-secondary btn-sm" style="gap:5px;">
-          ${getIconSvg('activity')}
-          <span>Command Center</span>
-        </a>
+        ${isCommandCenter ? '' : `
+          <a href="command-center.html" class="btn btn-secondary btn-sm" style="gap:5px;">
+            ${getIconSvg('activity')}
+            <span>Command Center</span>
+          </a>
+        `}
 
         <button class="icon-btn" onclick="CrisisCommon.toggleTheme()" title="Toggle Dark/Light Mode">
           <span id="theme-icon">${document.documentElement.classList.contains('theme-light') ? getIconSvg('moon') : getIconSvg('sun')}</span>
@@ -164,10 +167,12 @@
           <span class="badge-dot"></span>
         </button>
 
-        <div class="user-badge" title="Officer in Charge">
-          <div class="user-avatar-tag">EO</div>
-          <span style="font-weight:600;">EO Officer</span>
-        </div>
+        ${isCommandCenter ? `
+          <div class="user-badge" title="Operator view">
+            <div class="user-avatar-tag">EO</div>
+            <span style="font-weight:600;">Operations</span>
+          </div>
+        ` : ''}
       </div>
     `;
   }

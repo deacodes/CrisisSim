@@ -22,7 +22,7 @@ const CrisisCharts = {
     const scrubberX = scaleX(Math.min(24, simHour));
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; overflow:visible; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; overflow:visible; font-family:var(--font-sans);">
         <line x1="${pad.left}" y1="${scaleY(0)}" x2="${width - pad.right}" y2="${scaleY(0)}" stroke="var(--border-subtle)" stroke-width="1"/>
         <line x1="${pad.left}" y1="${scaleY(5000)}" x2="${width - pad.right}" y2="${scaleY(5000)}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
         <line x1="${pad.left}" y1="${scaleY(10000)}" x2="${width - pad.right}" y2="${scaleY(10000)}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
@@ -75,7 +75,7 @@ const CrisisCharts = {
     const scaleY = (safe) => height - pad.bottom - ((safe - minSafe) / (maxSafe - minSafe)) * (height - pad.top - pad.bottom);
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:var(--font-sans);">
         <line x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}" stroke="var(--border-subtle)" stroke-width="1"/>
         <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="var(--border-subtle)" stroke-width="1"/>
 
@@ -121,7 +121,7 @@ const CrisisCharts = {
     const scaleY = (eq) => height - pad.bottom - ((eq - minEq) / (maxEq - minEq)) * (height - pad.top - pad.bottom);
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:var(--font-sans);">
         <line x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}" stroke="var(--border-subtle)" stroke-width="1"/>
         <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="var(--border-subtle)" stroke-width="1"/>
 
@@ -168,7 +168,7 @@ const CrisisCharts = {
     const scaleX = (pct) => pad.left + (pct / 100) * (width - pad.left - pad.right);
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:var(--font-sans);">
         <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="var(--border-subtle)"/>
         <line x1="${pad.left}" y1="${height - pad.bottom}" x2="${width - pad.right}" y2="${height - pad.bottom}" stroke="var(--border-subtle)"/>
 
@@ -220,7 +220,7 @@ const CrisisCharts = {
     const areaCurve = `${pathCurve} L ${scaleX(bins.length - 1)} ${height - pad.bottom} L ${scaleX(0)} ${height - pad.bottom} Z`;
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:var(--font-sans);">
         <rect x="${scaleX(2)}" y="${pad.top}" width="${scaleX(4) - scaleX(2)}" height="${height - pad.top - pad.bottom}" fill="rgba(6, 182, 212, 0.14)" rx="3"/>
 
         <path d="${areaCurve}" fill="rgba(56, 189, 248, 0.15)"/>
@@ -256,7 +256,7 @@ const CrisisCharts = {
     const pad = { top: 15, right: 55, bottom: 15, left: 140 };
 
     container.innerHTML = `
-      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+      <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto; font-family:var(--font-sans);">
         <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${height - pad.bottom}" stroke="var(--border-subtle)"/>
 
         ${data.map((d, idx) => {

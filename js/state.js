@@ -9,6 +9,7 @@
     largerLabels: false,
     reducedMotion: false,
     colorblindMode: false,
+    mapMode: "3d",
     mapLayers: {
       floodDepth: true,
       routes: true,
@@ -29,7 +30,7 @@
   try {
     const saved = localStorage.getItem(SETTINGS_KEY);
     if (saved) {
-      settings = JSON.parse(saved);
+      settings = { ...defaultSettings, ...JSON.parse(saved) };
       settings.mapLayers = { ...defaultSettings.mapLayers, ...settings.mapLayers };
       settings.simDefaults = { ...defaultSettings.simDefaults, ...settings.simDefaults };
     }

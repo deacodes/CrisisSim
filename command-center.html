@@ -6,6 +6,13 @@
   <title>Command Center — CrisisSim</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/map.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./js/vendor/three.module.js"
+      }
+    }
+  </script>
   <style>
     .command-workspace {
       display: grid;
@@ -119,22 +126,23 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
           <div style="display:flex; align-items:center; gap:12px;">
             <h2 style="font-size:16px; font-weight:700; color:var(--text-primary); letter-spacing:-0.01em;">
-              CrisisSim EOC Command Center
+              Riverton response operations
             </h2>
             <span style="color:var(--text-muted); font-size:12px;">|</span>
             <span style="font-size:12px; color:var(--text-secondary);" id="cc-scenario-tag">
-              Riverton Flood — Central City (Cat 3 Inundation)
+              Flood scenario · Central City · Category 3 inundation
             </span>
           </div>
 
           <div class="sim-strip" style="padding:4px 10px;">
             <div class="sim-playback-controls">
               <button class="btn btn-primary btn-sm" id="btn-sim-play" onclick="toggleSimPlay()" style="width:72px; gap:4px;">
-                <span id="play-icon">▶</span>
+                <span id="play-icon" aria-hidden="true"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></span>
                 <span id="play-text">Start</span>
               </button>
               <button class="btn btn-secondary btn-sm" onclick="resetSim()" title="Reset Simulation Clock">
-                ↺ Reset
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 .49-9.36L1 10"></path></svg>
+                <span>Reset</span>
               </button>
               <div class="speed-btn-group">
                 <button class="speed-btn active" id="spd-1" onclick="setSimSpeed(1)">1×</button>
@@ -144,9 +152,9 @@
             </div>
 
             <div class="sim-timeline-slider">
-              <span style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted);">T+00h</span>
+              <span style="font-size:12px; font-family:var(--font-mono); color:var(--text-muted);">T+00h</span>
               <input type="range" id="sim-time-scrubber" min="0" max="24" step="0.2" value="8.6" oninput="scrubSimTime(this.value)" style="width:180px;">
-              <span style="font-size:11px; font-family:var(--font-mono); color:var(--accent-flood-light); font-weight:700;" id="sim-time-display">T+08:36</span>
+              <span style="font-size:12px; font-family:var(--font-mono); color:var(--accent-flood-light); font-weight:700;" id="sim-time-display">T+08:36</span>
             </div>
           </div>
         </div>
@@ -167,7 +175,7 @@
                   <span class="slider-val" id="ctrl-rainfall-val">90 mm/hr</span>
                 </div>
                 <input type="range" min="30" max="180" value="90" oninput="onHazardParamChange('rainfall', this.value, ' mm/hr')">
-                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
                   <span>Light</span>
                   <span>Moderate</span>
                   <span>Heavy</span>
@@ -181,7 +189,7 @@
                   <span class="slider-val" id="ctrl-warning-val">6 hours</span>
                 </div>
                 <input type="range" min="1" max="24" value="6" oninput="onHazardParamChange('warning', this.value, ' hours')">
-                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
                   <span>0h</span>
                   <span>6h</span>
                   <span>12h</span>
@@ -204,7 +212,7 @@
                   <span class="slider-val" id="ctrl-budget-val">$12M</span>
                 </div>
                 <input type="range" min="2" max="50" value="12" oninput="onHazardParamChange('budget', '$' + this.value + 'M')">
-                <div style="display:flex; justify-content:space-between; font-size:9.5px; color:var(--text-muted);">
+                <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted);">
                   <span>$0</span>
                   <span>$10M</span>
                   <span>$20M</span>
@@ -286,7 +294,7 @@
                 <div style="font-weight:700; font-size:12px; display:flex; align-items:center; gap:6px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                   <span>Policy Comparison</span>
-                  <span style="font-weight:400; color:var(--text-muted); font-size:11px;">How different strategies perform in this scenario</span>
+                  <span style="font-weight:400; color:var(--text-muted); font-size:12px;">How different strategies perform in this scenario</span>
                 </div>
                 <span class="badge badge-info">3 Models Evaluated</span>
               </div>
@@ -314,7 +322,7 @@
                       <td class="tabular-nums">8.1 hrs</td>
                       <td class="tabular-nums">0.54</td>
                       <td class="tabular-nums">$4.2M</td>
-                      <td style="color:var(--text-muted); font-size:11px;">Rely on existing infrastructure only.</td>
+                      <td style="color:var(--text-muted); font-size:12px;">Rely on existing infrastructure only.</td>
                     </tr>
                     <tr>
                       <td style="font-weight:600;">
@@ -326,19 +334,19 @@
                       <td class="tabular-nums">5.6 hrs</td>
                       <td class="tabular-nums">0.76</td>
                       <td class="tabular-nums">$9.8M</td>
-                      <td style="color:var(--text-muted); font-size:11px;">Open all three temporary shelters early.</td>
+                      <td style="color:var(--text-muted); font-size:12px;">Open all three temporary shelters early.</td>
                     </tr>
                     <tr class="highlight-row">
                       <td style="font-weight:700; color:var(--accent-flood-light);">
                         <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent-safe); margin-right:6px;"></span>
-                        Optimized Policy (AI-Recommended)
+                        Optimized response
                       </td>
                       <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">12,480</td>
                       <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">1,230</td>
                       <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">4.8 hrs</td>
                       <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">0.82</td>
                       <td class="tabular-nums">$12.0M</td>
-                      <td style="color:var(--text-primary); font-size:11px; font-weight:500;">Dynamic routing, staged shelters, and rescue boats.</td>
+                      <td style="color:var(--text-primary); font-size:12px; font-weight:500;">Dynamic routing, staged shelters, and rescue boats.</td>
                     </tr>
                   </tbody>
                 </table>
@@ -350,44 +358,44 @@
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
               <div class="metric-card" style="padding:10px;">
                 <div class="metric-card-top">
-                  <span class="metric-label" style="font-size:10px;">Safely Evacuated</span>
+                  <span class="metric-label" style="font-size:12px;">Safely Evacuated</span>
                   <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
                 </div>
                 <div class="metric-value" id="cc-metric-evac" style="font-size:20px;">12,480</div>
-                <div class="metric-sub positive" style="font-size:10px;">
+                <div class="metric-sub positive" style="font-size:12px;">
                   <span>↑ +34% vs baseline</span>
                 </div>
               </div>
 
               <div class="metric-card" style="padding:10px;">
                 <div class="metric-card-top">
-                  <span class="metric-label" style="font-size:10px;">Stranded</span>
+                  <span class="metric-label" style="font-size:12px;">Stranded</span>
                   <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
                 </div>
                 <div class="metric-value" id="cc-metric-stranded" style="font-size:20px; color:var(--accent-danger);">1,230</div>
-                <div class="metric-sub positive" style="font-size:10px;">
+                <div class="metric-sub positive" style="font-size:12px;">
                   <span>↓ -62% vs baseline</span>
                 </div>
               </div>
 
               <div class="metric-card" style="padding:10px;">
                 <div class="metric-card-top">
-                  <span class="metric-label" style="font-size:10px;">Avg Evacuation Time</span>
+                  <span class="metric-label" style="font-size:12px;">Avg Evacuation Time</span>
                   <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 </div>
                 <div class="metric-value" id="cc-metric-time" style="font-size:20px;">4.8 <span style="font-size:12px;">hrs</span></div>
-                <div class="metric-sub positive" style="font-size:10px;">
+                <div class="metric-sub positive" style="font-size:12px;">
                   <span>↓ -40% vs baseline</span>
                 </div>
               </div>
 
               <div class="metric-card" style="padding:10px;">
                 <div class="metric-card-top">
-                  <span class="metric-label" style="font-size:10px;">Equity Score</span>
+                  <span class="metric-label" style="font-size:12px;">Equity Score</span>
                   <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path></svg>
                 </div>
                 <div class="metric-value" id="cc-metric-equity" style="font-size:20px; color:var(--accent-safe);">0.82</div>
-                <div class="metric-sub positive" style="font-size:10px;">
+                <div class="metric-sub positive" style="font-size:12px;">
                   <span>↑ +0.28 vs baseline</span>
                 </div>
               </div>
@@ -401,7 +409,7 @@
                 </div>
               </div>
               <div id="cc-progress-chart" style="height:120px; width:100%;"></div>
-              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:6px; margin-top:4px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:6px; margin-top:4px;">
                 <span style="color:var(--accent-safe);">● Evacuated</span>
                 <span style="color:var(--accent-danger);">● Stranded</span>
                 <span>--- Baseline</span>
@@ -416,7 +424,7 @@
                 </div>
               </div>
               
-              <div style="display:flex; flex-direction:column; gap:6px; font-size:11px;">
+              <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
                 <div>
                   <div style="display:flex; justify-content:space-between; margin-bottom:2px;">
                     <span>North Shelter</span>
@@ -460,22 +468,22 @@
                 <div class="alert-item alert-danger" style="margin-bottom:4px; padding:6px 8px;">
                   <div class="alert-time">T+04:12</div>
                   <div>
-                    <div class="alert-title" style="font-size:11px;">Bridge 3 approaching closure</div>
-                    <div class="alert-desc" style="font-size:10px;">Water at 15cm from lower chord.</div>
+                    <div class="alert-title" style="font-size:12px;">Bridge 3 approaching closure</div>
+                    <div class="alert-desc" style="font-size:12px;">Water at 15cm from lower chord.</div>
                   </div>
                 </div>
                 <div class="alert-item alert-warning" style="margin-bottom:4px; padding:6px 8px;">
                   <div class="alert-time">T+05:06</div>
                   <div>
-                    <div class="alert-title" style="font-size:11px;">North Shelter 82% capacity</div>
-                    <div class="alert-desc" style="font-size:10px;">Intake diverted to East Shelter.</div>
+                    <div class="alert-title" style="font-size:12px;">North Shelter 82% capacity</div>
+                    <div class="alert-desc" style="font-size:12px;">Intake diverted to East Shelter.</div>
                   </div>
                 </div>
                 <div class="alert-item alert-info" style="margin-bottom:4px; padding:6px 8px;">
                   <div class="alert-time">T+02:40</div>
                   <div>
-                    <div class="alert-title" style="font-size:11px;">16 Rescue Boats in Canal Basin</div>
-                    <div class="alert-desc" style="font-size:10px;">Evacuating stranded residents.</div>
+                    <div class="alert-title" style="font-size:12px;">16 Rescue Boats in Canal Basin</div>
+                    <div class="alert-desc" style="font-size:12px;">Evacuating stranded residents.</div>
                   </div>
                 </div>
               </div>
@@ -501,13 +509,16 @@
         window.CrisisState.setActiveScenario(scId);
       }
 
-      CrisisCommon.initShell("scenarios");
+      CrisisCommon.initShell("command-center");
 
-      cityMap = new RivertonCityMap("command-center-map-wrapper", {
-        isCompact: false,
-        showControls: true,
-        showLegend: true
+      window.addEventListener("crisissim-map-mode-change", (event) => {
+        const mode = event.detail?.mode;
+        if (!mode || !window.CrisisState) return;
+        window.CrisisState.updateSettings({ mapMode: mode });
+        mountSelectedMap();
       });
+
+      mountSelectedMap();
 
       CrisisCharts.renderEvacuationProgressChart("cc-progress-chart");
 
@@ -518,6 +529,17 @@
       updateCommandCenterUI(window.CrisisState.simulation.getState());
     });
 
+    async function mountSelectedMap() {
+      if (cityMap?.dispose) cityMap.dispose();
+      if (cityMap?.stopAgentAnimation) cityMap.stopAgentAnimation();
+      cityMap = await window.mountConfiguredRivertonMap("command-center-map-wrapper", {
+        isCompact: false,
+        showControls: true,
+        showLegend: true,
+        showModeControl: true
+      });
+    }
+
     function updateCommandCenterUI(state) {
       const metrics = window.CrisisState.simulation.getMetrics();
 
@@ -526,11 +548,11 @@
       const playBtn = document.getElementById("btn-sim-play");
       if (playIcon && playText) {
         if (state.isRunning) {
-          playIcon.textContent = "❚❚";
+          playIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>';
           playText.textContent = "Pause";
           playBtn.className = "btn btn-secondary btn-sm";
         } else {
-          playIcon.textContent = "▶";
+          playIcon.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>';
           playText.textContent = "Start";
           playBtn.className = "btn btn-primary btn-sm";
         }

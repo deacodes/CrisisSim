@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CrisisSim — Emergency Response Digital Twin</title>
+  <title>CrisisSim — Emergency Response Simulation</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/map.css">
 </head>
@@ -206,7 +206,7 @@
               <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
                 <div>
                   <div style="font-weight:700; color:var(--text-primary); font-size:13px;">Optimized Response</div>
-                  <div style="font-size:11px; color:var(--accent-flood-light);">Active Flagship Digital Twin</div>
+                  <div style="font-size:11px; color:var(--accent-flood-light);">Active flagship simulation</div>
                 </div>
                 <span class="badge badge-success">Active</span>
               </div>
@@ -236,7 +236,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       CrisisCommon.initShell("dashboard");
       CrisisCharts.renderEvacuationProgressChart("dashboard-progress-chart");
-      new RivertonCityMap("dashboard-map-container", { isCompact: true, showControls: false });
+      window.mountConfiguredRivertonMap("dashboard-map-container", { isCompact: true, showControls: false, showLegend: false });
     });
   </script>
 </body>

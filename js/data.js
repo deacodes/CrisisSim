@@ -1,6 +1,6 @@
 const CITY_DATA = {
   name: "Riverton",
-  state: "Synthetic Digital Twin",
+  state: "Synthetic City Model",
   totalPopulation: 78500,
   areaKm2: 42.5,
   riverName: "Riverton Meander & North Canal",
@@ -469,7 +469,7 @@ const POLICY_COMPARISON_TABLE = [
     isHighlight: false
   },
   {
-    policy: "Optimized Policy (AI-Recommended)",
+    policy: "Optimized response",
     safelyEvacuated: "12,480",
     stranded: "1,230",
     avgEvacuationTime: "4.8 hrs",

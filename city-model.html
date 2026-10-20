@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>City Model Digital Twin — CrisisSim</title>
+  <title>City Model — CrisisSim</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/map.css">
 </head>
@@ -17,7 +17,7 @@
       <main class="page-viewport">
         <div class="page-header">
           <div class="page-header-text">
-            <h1 class="page-title">Synthetic City Digital Twin: Riverton</h1>
+            <h1 class="page-title">Synthetic City Model: Riverton</h1>
             <div class="page-subtitle">Inspect spatial environment, topological elevations, neighborhood demographics, and infrastructure constraints.</div>
           </div>
           <div class="page-actions">
@@ -206,7 +206,7 @@
           <div style="font-size:12px; color:var(--text-secondary); line-height:1.55; display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
             <div>
               <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">Spatial Synthesis</strong>
-              Riverton is a synthetic digital twin constructed using open-source topological primitives and calibrated urban parameters. Topography follows a 10-meter Digital Elevation Model (DEM) with a meandering river valley and engineered canal basins. Road networks are structured with graph theory algorithms to replicate common transit choke-points.
+              Riverton is a synthetic city model constructed using open-source topological primitives and calibrated urban parameters. Topography follows a 10-meter Digital Elevation Model (DEM) with a meandering river valley and engineered canal basins. Road networks are structured with graph theory algorithms to replicate common transit choke-points.
             </div>
             <div>
               <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">Sociodemographic Calibration</strong>
@@ -228,12 +228,12 @@
     document.addEventListener("DOMContentLoaded", () => {
       CrisisCommon.initShell("city-model");
 
-      cityMap = new RivertonCityMap("city-model-map-wrapper", {
+      window.mountConfiguredRivertonMap("city-model-map-wrapper", {
         isCompact: false,
-        showControls: false,
+        showControls: true,
         showLegend: true,
         onNeighborhoodClick: (id) => loadNeighborhoodDetail(id)
-      });
+      }).then(map => { cityMap = map; });
 
       loadNeighborhoodDetail("N5");
     });
