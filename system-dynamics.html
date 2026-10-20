@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Dynamics — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .flow-diagram-container {
+      background: var(--bg-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      overflow-x: auto;
+    }
+    .flow-column {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 140px;
+    }
+    .flow-node {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xs);
+      padding: 8px 10px;
+      font-size: 11.5px;
+    }
+    .flow-node.danger {
+      border-color: rgba(239, 68, 68, 0.5);
+      background: var(--accent-danger-bg);
+    }
+    .flow-arrow {
+      color: var(--text-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-strong);
+      position: absolute;
+      left: -5px;
+      top: 4px;
+    }
+    .timeline-dot.danger { background: var(--accent-danger); }
+    .timeline-dot.warning { background: var(--accent-caution); }
+    .timeline-dot.safe { background: var(--accent-safe); }
+    .timeline-dot.info { background: var(--accent-flood-light); }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">System Dynamics & Causal Mechanics</h1>
+            <div class="page-subtitle">Understand why outcomes occur: temporal flood propagation, road network threshold breaches, and infrastructure bottlenecks.</div>
+          </div>
+          <div class="page-actions">
+            <span class="badge badge-info">Hydrodynamic Simulation</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              <span>Evacuation Flow Corridor Diagram (Origins → Chokepoints → Destinations)</span>
+            </div>
+            <span class="badge badge-info">Capacity Flow</span>
+          </div>
+
+          <div class="flow-diagram-container">
+            <div class="flow-column">
+              <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:2px;">Origin Districts</div>
+              <div class="flow-node danger">
+                <strong>Neighborhood 5</strong>
+                <div style="font-size:10px; color:var(--text-muted);">9,800 Pop • 58% Transit Dep</div>
+              </div>
+              <div class="flow-node">
+                <strong>Eastside Flats</strong>
+                <div style="font-size:10px; color:var(--text-muted);">13,900 Pop • 46% Transit Dep</div>
+              </div>
+              <div class="flow-node">
+                <strong>Downtown Waterfront</strong>
+                <div style="font-size:10px; color:var(--text-muted);">16,200 Pop • High Vehicle Density</div>
+              </div>
+              <div class="flow-node">
+                <strong>West End Heights</strong>
+                <div style="font-size:10px; color:var(--text-muted);">12,400 Pop • Elevated</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-column">
+              <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:2px;">Arterials & Bridges</div>
+              <div class="flow-node danger">
+                <strong style="color:var(--accent-danger);">Bridge 3 (Bottleneck)</strong>
+                <div style="font-size:10px; color:var(--accent-danger);">Closes at Hour 4.2 (15cm clearance)</div>
+              </div>
+              <div class="flow-node">
+                <strong>East Industrial Arterial</strong>
+                <div style="font-size:10px; color:var(--text-muted);">Rerouted via Canal Overpass</div>
+              </div>
+              <div class="flow-node">
+                <strong>Bridge 1 (North Expwy)</strong>
+                <div style="font-size:10px; color:var(--text-muted);">4 Lanes Open (1,400 veh/hr)</div>
+              </div>
+              <div class="flow-node">
+                <strong>West Heights Arterial</strong>
+                <div style="font-size:10px; color:var(--text-muted);">Grade-separated Clear Route</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow">→</div>
+
+            <div class="flow-column">
+              <div style="font-size:10px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:2px;">Destination Shelters</div>
+              <div class="flow-node">
+                <strong>North Shelter (Civic Arena)</strong>
+                <div style="font-size:10px; color:var(--accent-caution);">82% Occupancy (2,870 / 3,500)</div>
+              </div>
+              <div class="flow-node">
+                <strong>East Shelter (Pavilion)</strong>
+                <div style="font-size:10px; color:var(--accent-safe);">51% Occupancy (1,122 / 2,200)</div>
+              </div>
+              <div class="flow-node">
+                <strong>West Shelter (High School)</strong>
+                <div style="font-size:10px; color:var(--accent-safe);">64% Occupancy (1,792 / 2,800)</div>
+              </div>
+              <div class="flow-node">
+                <strong>Riverside Hospital</strong>
+                <div style="font-size:10px; color:var(--text-muted);">74% Load (310 / 420 Beds)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Riverton River Stage & Flood Depth (0h–24h)</div>
+              <span class="badge badge-danger">Peak Crest: 6.8m</span>
+            </div>
+            <div id="dyn-chart-flood" style="height:170px;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+                <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
+                <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
+                <line x1="40" y1="80" x2="420" y2="80" stroke="var(--accent-danger)" stroke-width="1.5" stroke-dasharray="4 2"/>
+                <text x="415" y="75" fill="var(--accent-danger)" font-size="9" text-anchor="end">Bridge Inundation Threshold (3.5m)</text>
+                <path d="M 40 130 Q 140 100 220 30 T 420 110" fill="none" stroke="var(--accent-flood-light)" stroke-width="2.5"/>
+                <path d="M 40 135 Q 150 90 235 25 T 420 100" fill="none" stroke="var(--accent-danger)" stroke-width="2" stroke-dasharray="3 2"/>
+                <text x="220" y="24" fill="var(--accent-flood-light)" font-size="9.5" font-weight="700" text-anchor="middle">Central River Crest (6.8m at 11.8h)</text>
+                <text x="40" y="155" fill="var(--text-muted)" font-size="9">0h</text>
+                <text x="135" y="155" fill="var(--text-muted)" font-size="9">6h</text>
+                <text x="230" y="155" fill="var(--text-muted)" font-size="9">12h</text>
+                <text x="325" y="155" fill="var(--text-muted)" font-size="9">18h</text>
+                <text x="420" y="155" fill="var(--text-muted)" font-size="9">24h</text>
+              </svg>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-muted); margin-top:4px;">
+              <span style="color:var(--accent-flood-light);">● Central River Gauge</span>
+              <span style="color:var(--accent-danger);">-- Canal Basin Inflow</span>
+              <span>--- Bridge Inundation Threshold</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Road Network Operability Timeline</div>
+              <span class="badge badge-warning">42% Min Open</span>
+            </div>
+            <div id="dyn-chart-road" style="height:170px;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+                <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
+                <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
+                <path d="M 40 30 L 90 40 L 140 75 L 230 115 L 320 95 L 420 60" fill="none" stroke="var(--accent-caution)" stroke-width="2.5"/>
+                <text x="40" y="26" fill="var(--text-primary)" font-size="9.5" font-weight="600">100% Open</text>
+                <text x="230" y="130" fill="var(--accent-danger)" font-size="9.5" font-weight="700">42% (Max Closure Hour 12)</text>
+                <text x="40" y="155" fill="var(--text-muted)" font-size="9">0h</text>
+                <text x="135" y="155" fill="var(--text-muted)" font-size="9">6h</text>
+                <text x="230" y="155" fill="var(--text-muted)" font-size="9">12h</text>
+                <text x="325" y="155" fill="var(--text-muted)" font-size="9">18h</text>
+                <text x="420" y="155" fill="var(--text-muted)" font-size="9">24h</text>
+              </svg>
+            </div>
+            <div style="font-size:10.5px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Percentage of Riverton primary and secondary roads accessible by standard vehicles.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Shelter Occupancy & Capacity Trajectory</div>
+              <span class="badge badge-info">Capacity Surge</span>
+            </div>
+            <div id="dyn-chart-shelter" style="height:170px;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+                <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
+                <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
+                <path d="M 40 135 L 120 100 L 230 40 L 420 45" fill="none" stroke="var(--accent-caution)" stroke-width="2"/>
+                <path d="M 40 137 L 120 115 L 230 70 L 420 75" fill="none" stroke="var(--accent-safe)" stroke-width="2"/>
+                <path d="M 40 138 L 120 120 L 230 95 L 420 98" fill="none" stroke="var(--accent-flood-light)" stroke-width="2"/>
+                <text x="230" y="32" fill="var(--accent-caution)" font-size="9.5" font-weight="700">North: 82%</text>
+                <text x="40" y="155" fill="var(--text-muted)" font-size="9">0h</text>
+                <text x="135" y="155" fill="var(--text-muted)" font-size="9">6h</text>
+                <text x="230" y="155" fill="var(--text-muted)" font-size="9">12h</text>
+                <text x="325" y="155" fill="var(--text-muted)" font-size="9">18h</text>
+                <text x="420" y="155" fill="var(--text-muted)" font-size="9">24h</text>
+              </svg>
+            </div>
+            <div style="display:flex; justify-content:space-around; font-size:10.5px; color:var(--text-muted); margin-top:4px;">
+              <span style="color:var(--accent-caution);">● North (3.5k cap)</span>
+              <span style="color:var(--accent-safe);">● West (2.8k cap)</span>
+              <span style="color:var(--accent-flood-light);">● East (2.2k cap)</span>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Hospital Load & Trauma Surge</div>
+              <span class="badge badge-warning">74% Peak Load</span>
+            </div>
+            <div id="dyn-chart-hospital" style="height:170px;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+                <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
+                <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
+                <path d="M 40 100 L 120 85 L 230 45 L 350 48 L 420 55" fill="none" stroke="var(--accent-danger)" stroke-width="2.5"/>
+                <text x="230" y="38" fill="var(--accent-danger)" font-size="9.5" font-weight="700">74% ICU Occupied</text>
+                <text x="40" y="155" fill="var(--text-muted)" font-size="9">0h</text>
+                <text x="135" y="155" fill="var(--text-muted)" font-size="9">6h</text>
+                <text x="230" y="155" fill="var(--text-muted)" font-size="9">12h</text>
+                <text x="325" y="155" fill="var(--text-muted)" font-size="9">18h</text>
+                <text x="420" y="155" fill="var(--text-muted)" font-size="9">24h</text>
+              </svg>
+            </div>
+            <div style="font-size:10.5px; color:var(--text-muted); text-align:center; margin-top:4px;">
+              Riverside General Hospital bed capacity under combined flood surge and road rerouting.
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                <span>Chronological Event Milestone Timeline</span>
+              </div>
+              <span class="badge badge-info">8 Major Events</span>
+            </div>
+            <div style="position:relative; padding-left:16px; border-left:2px solid var(--border-subtle); display:flex; flex-direction:column; gap:12px; margin:8px 0;">
+              ${(window.CrisisData?.SYSTEM_TIMELINE || []).map(evt => `
+                <div style="position:relative;">
+                  <div class="timeline-dot ${evt.level}"></div>
+                  <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-muted); font-weight:700;">${evt.time} (Hour ${evt.hour})</div>
+                  <div style="font-weight:700; font-size:12px; color:var(--text-primary); margin:1px 0;">${evt.title}</div>
+                  <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.35;">${evt.desc}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="card" style="border-color:rgba(239, 68, 68, 0.4); background:rgba(239, 68, 68, 0.04);">
+              <div style="font-size:10px; text-transform:uppercase; color:var(--accent-danger); font-weight:700; margin-bottom:4px;">
+                Primary Bottleneck #1
+              </div>
+              <strong style="font-size:13px; color:var(--text-primary); display:block; margin-bottom:4px;">
+                Bridge 3 (Canal Bottleneck)
+              </strong>
+              <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">
+                <strong>Consequence:</strong> Cuts off sole arterial route for 9,800 residents in Neighborhood 5, extending evacuation by +3.5 hours.
+              </div>
+              <div style="padding:6px 8px; background:var(--bg-inset); border-radius:var(--radius-xs); font-size:11px; color:var(--accent-safe); border:1px solid var(--border-subtle);">
+                <strong>Mitigation:</strong> Pre-stage pontoon bypass or mandate bus shuttles prior to Hour 3.
+              </div>
+            </div>
+
+            <div class="card" style="border-color:rgba(245, 158, 11, 0.4); background:rgba(245, 158, 11, 0.04);">
+              <div style="font-size:10px; text-transform:uppercase; color:var(--accent-caution); font-weight:700; margin-bottom:4px;">
+                Secondary Bottleneck #2
+              </div>
+              <strong style="font-size:13px; color:var(--text-primary); display:block; margin-bottom:4px;">
+                Lower River Parkway Drainage Basin
+              </strong>
+              <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">
+                <strong>Consequence:</strong> Overflows at only 25mm/hr precipitation, cutting north-south transit connectivity.
+              </div>
+              <div style="padding:6px 8px; background:var(--bg-inset); border-radius:var(--radius-xs); font-size:11px; color:var(--accent-safe); border:1px solid var(--border-subtle);">
+                <strong>Mitigation:</strong> Deploy mobile high-capacity pumps at interchange 4B and activate reversible contraflow.
+              </div>
+            </div>
+
+            <div class="card" style="border-color:rgba(56, 189, 248, 0.4); background:rgba(56, 189, 248, 0.04);">
+              <div style="font-size:10px; text-transform:uppercase; color:var(--accent-flood-light); font-weight:700; margin-bottom:4px;">
+                Facility Bottleneck #3
+              </div>
+              <strong style="font-size:13px; color:var(--text-primary); display:block; margin-bottom:4px;">
+                North Shelter Vehicular Access Ramp
+              </strong>
+              <div style="font-size:11.5px; color:var(--text-secondary); margin-bottom:6px;">
+                <strong>Consequence:</strong> 1.8km vehicle queue creates severe congestion on North Expressway.
+              </div>
+              <div style="padding:6px 8px; background:var(--bg-inset); border-radius:var(--radius-xs); font-size:11px; color:var(--accent-safe); border:1px solid var(--border-subtle);">
+                <strong>Mitigation:</strong> Divert private automobiles to University Fieldhouse 800m north, reserve ramp for ambulances.
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("dynamics");
+    });
+  </script>
+</body>
+</html>

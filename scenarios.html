@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scenarios Library — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+                <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Simulation Scenario Library</h1>
+            <div class="page-subtitle">Manage, duplicate, compare, and launch synthetic flood evacuation cases for Riverton.</div>
+          </div>
+          <div class="page-actions">
+            <a href="new-scenario.html" class="btn btn-primary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>New Scenario</span>
+            </a>
+          </div>
+        </div>
+
+                <div class="card" style="margin-bottom:16px; padding:12px;">
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div style="flex:1; min-width:240px; position:relative;">
+              <input type="text" id="scenario-search" class="form-control" placeholder="Search scenarios by name, severity, or policy..." oninput="filterScenarios()">
+            </div>
+            <div style="display:flex; gap:8px;">
+              <select id="filter-hazard" class="form-control" style="width:140px;" onchange="filterScenarios()">
+                <option value="all">All Hazards</option>
+                <option value="Flood">Flood (Active)</option>
+                <option value="Wildfire" disabled>Wildfire (Locked)</option>
+                <option value="Epidemic" disabled>Epidemic (Locked)</option>
+              </select>
+              <select id="filter-status" class="form-control" style="width:140px;" onchange="filterScenarios()">
+                <option value="all">All Statuses</option>
+                <option value="Completed">Completed</option>
+                <option value="Ready">Ready</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+                <div class="card" style="padding:0; overflow:hidden;">
+          <div class="table-responsive">
+            <table class="ops-table">
+              <thead>
+                <tr>
+                  <th>Scenario Name</th>
+                  <th>Hazard & Severity</th>
+                  <th>Parameters</th>
+                  <th>Safely Evacuated</th>
+                  <th>Stranded</th>
+                  <th>Equity Score</th>
+                  <th>Status</th>
+                  <th>Last Run</th>
+                  <th style="text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="scenarios-table-body">
+                              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("scenarios");
+      renderScenariosTable();
+    });
+
+    function renderScenariosTable() {
+      const scenarios = window.CrisisState.getScenarios();
+      const activeSc = window.CrisisState.getActiveScenario();
+      const searchVal = document.getElementById("scenario-search")?.value.toLowerCase() || "";
+      const hazardVal = document.getElementById("filter-hazard")?.value || "all";
+      const statusVal = document.getElementById("filter-status")?.value || "all";
+
+      const filtered = scenarios.filter(s => {
+        const matchesSearch = s.name.toLowerCase().includes(searchVal) || (s.description && s.description.toLowerCase().includes(searchVal));
+        const matchesHazard = hazardVal === "all" || s.hazardType === hazardVal;
+        const matchesStatus = statusVal === "all" || s.status === statusVal;
+        return matchesSearch && matchesHazard && matchesStatus;
+      });
+
+      const tbody = document.getElementById("scenarios-table-body");
+      if (!tbody) return;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">No scenarios match the selected filters.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(s => {
+        const isActive = s.id === activeSc?.id;
+        const outcomes = s.outcomes || { safelyEvacuated: 12480, stranded: 1230, equityScore: 0.82 };
+
+        return `
+          <tr class="${isActive ? 'highlight-row' : ''}">
+            <td>
+              <div style="font-weight:600; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                ${s.name}
+                ${s.isFlagship ? `<span class="badge badge-info">Flagship</span>` : ''}
+                ${s.isBaseline ? `<span class="badge badge-neutral">Baseline</span>` : ''}
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px; max-width:320px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+                ${s.description || 'Simulated synthetic flood case'}
+              </div>
+            </td>
+            <td>
+              <div style="font-weight:600;">${s.hazardType}</div>
+              <div style="font-size:10.5px; color:var(--text-muted);">${s.severity}</div>
+            </td>
+            <td class="tabular-nums" style="font-size:11px;">
+              ${s.rainfallIntensity || 90} mm/h • ${s.warningTime || 6}h notice • $${s.budget || 12}M
+            </td>
+            <td class="tabular-nums" style="color:var(--accent-safe); font-weight:700;">
+              ${outcomes.safelyEvacuated?.toLocaleString()} (${outcomes.evacuationRate || 88}%)
+            </td>
+            <td class="tabular-nums" style="color:var(--accent-danger); font-weight:600;">
+              ${outcomes.stranded?.toLocaleString()}
+            </td>
+            <td class="tabular-nums" style="font-weight:700; color:${Number(outcomes.equityScore) >= 0.8 ? 'var(--accent-safe)' : 'var(--accent-caution)'};">
+              ${outcomes.equityScore}
+            </td>
+            <td>
+              <span class="badge ${s.status === 'Completed' ? 'badge-success' : 'badge-info'}">${s.status}</span>
+            </td>
+            <td class="tabular-nums" style="font-size:11px; color:var(--text-muted);">
+              ${s.lastRunDate}
+            </td>
+            <td style="text-align:right;">
+              <div style="display:inline-flex; gap:4px;">
+                <button class="btn btn-secondary btn-sm" onclick="openScenario('${s.id}')" title="Run in Command Center">
+                  Open
+                </button>
+                <button class="icon-btn" onclick="duplicateScenario('${s.id}')" title="Duplicate Scenario" style="width:26px; height:26px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                </button>
+                <button class="icon-btn" onclick="renameScenarioPrompt('${s.id}', '${s.name.replace(/'/g, "\\'")}')" title="Rename Scenario" style="width:26px; height:26px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                </button>
+                ${!s.isFlagship && !s.isBaseline ? `
+                  <button class="icon-btn btn-danger" onclick="deleteScenarioPrompt('${s.id}')" title="Delete Scenario" style="width:26px; height:26px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterScenarios() {
+      renderScenariosTable();
+    }
+
+    function openScenario(id) {
+      window.CrisisState.setActiveScenario(id);
+      window.location.href = `command-center.html?id=${id}`;
+    }
+
+    function duplicateScenario(id) {
+      const copy = window.CrisisState.duplicateScenario(id);
+      if (copy) {
+        CrisisCommon.showToast(`Duplicated: ${copy.name}`);
+        renderScenariosTable();
+      }
+    }
+
+    function renameScenarioPrompt(id, currentName) {
+      const newName = prompt("Enter new name for scenario:", currentName);
+      if (newName && newName.trim()) {
+        window.CrisisState.renameScenario(id, newName.trim());
+        CrisisCommon.showToast("Scenario renamed successfully");
+        renderScenariosTable();
+      }
+    }
+
+    function deleteScenarioPrompt(id) {
+      if (confirm("Are you sure you want to delete this scenario? This cannot be undone.")) {
+        window.CrisisState.deleteScenario(id);
+        CrisisCommon.showToast("Scenario deleted", "danger");
+        renderScenariosTable();
+      }
+    }
+  </script>
+</body>
+</html>
