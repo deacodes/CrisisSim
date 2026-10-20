@@ -1,0 +1,12 @@
+-r requirements-engine.txt
+fastapi==0.153.0
+uvicorn==0.54.0
+websockets==17.3
+sqlalchemy==2.1.5
+alembic==1.20.0
+psycopg[binary]==3.3.6
+celery==5.6.3
+redis==8.1.0
+pymoo==0.6.2
+SALib==1.6.0
+httpx==0.28.1
