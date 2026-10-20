@@ -1,4 +1,5 @@
 (function () {
+  const escapeText = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const NAV_SECTIONS = [
     {
       title: "Operations",
@@ -133,7 +134,7 @@
         <div class="header-scenario-selector">
           <label>Scenario</label>
           <button class="scenario-select-btn" onclick="CrisisCommon.openScenarioModal()" title="Switch active scenario">
-            <span id="header-scenario-name">${activeScenario.name}</span>
+            <span id="header-scenario-name">${escapeText(activeScenario.name)}</span>
             ${getIconSvg('chevronDown')}
           </button>
         </div>
@@ -141,7 +142,7 @@
         <div class="header-clock" title="Simulation elapsed time">
           ${getIconSvg('activity')}
           <span id="header-clock-val">${clockStr}</span>
-          <span style="color:var(--text-muted); font-size:11px;">| Jun 14, 2028</span>
+          <span id="backend-connection" style="color:var(--text-muted); font-size:11px;">Connecting</span>
         </div>
 
         <div id="header-status-badge" class="status-badge ${simState.isRunning ? 'status-running' : 'status-ready'}">
@@ -190,7 +191,7 @@
     toast.className = `toast ${type === 'danger' ? 'toast-danger' : ''}`;
     toast.innerHTML = `
       ${getIconSvg('check')}
-      <span>${message}</span>
+      <span>${escapeText(message)}</span>
     `;
     container.appendChild(toast);
 
@@ -263,12 +264,12 @@
                    onclick="CrisisCommon.selectScenario('${sc.id}')">
                 <div>
                   <div style="font-weight:600; color:var(--text-primary); font-size:13px; display:flex; align-items:center; gap:6px;">
-                    ${sc.name}
+                    ${escapeText(sc.name)}
                     ${sc.isFlagship ? `<span class="badge badge-info">Flagship</span>` : ''}
                     ${sc.isBaseline ? `<span class="badge badge-neutral">Baseline</span>` : ''}
                   </div>
                   <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
-                    ${sc.hazardType} • ${sc.severity} • Budget: $${sc.budget}M
+                    ${escapeText(sc.hazardType)} • ${escapeText(sc.severity)} • Budget: ${Number(sc.budget)*1e6} model units
                   </div>
                 </div>
                 <div>
@@ -338,14 +339,6 @@
     renderSidebar(activePageId);
     renderHeader(activePageId);
     initSimulationSync();
-    const viewport = document.querySelector("main");
-    if (viewport && !document.getElementById("static-demo-notice")) {
-      const notice = document.createElement("p");
-      notice.id = "static-demo-notice";
-      notice.textContent = "Static demo: illustrative data, not computed results. Start the CrisisSim backend to use the numerical simulation.";
-      notice.style.cssText = "font-size:13px;color:var(--accent-caution);margin:0 0 16px;";
-      viewport.prepend(notice);
-    }
   }
 
   window.CrisisCommon = {

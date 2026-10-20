@@ -123,10 +123,30 @@ export class LiveMap {
     }
     this.assets.children.filter(o=>o.userData.resource).forEach(o=>this.assets.remove(o));
     if(this.layers.resources&&this.models)for(const r of snapshot.resources) {
-      const obj=this.placeModel(this.models[r.kind==='boat'?4:3],r.x,r.y,1);
+      // A bus must not masquerade as an ambulance. No bus OBJ is supplied.
+      if(!this.busModel)this.busModel=this.makeBus();
+      const obj=this.placeModel(r.kind==='bus'?this.busModel:this.models[r.kind==='boat'?4:3],r.x,r.y,1);
+      if(r.kind==='boat'&&field) {
+        let closest=0,distance=Infinity;
+        this.mesh.centers.forEach((p,i)=>{const d=(p[0]-r.x)**2+(p[1]-r.y)**2;if(d<distance){distance=d;closest=i;}});
+        obj.position.y+=Math.max(0,field.stage_m[closest]-ground(r.x,r.y))*.3;
+      }
       obj.userData.resource=true;
     }
     this.assets.children.filter(o=>o.userData.facility).forEach(o=>{o.visible=this.layers.facilities;});
+  }
+  makeBus() {
+    const group=new THREE.Group();
+    const body=new THREE.Mesh(new THREE.BoxGeometry(2.5,1,1),new THREE.MeshStandardMaterial({color:0xe9b949}));
+    body.position.y=.7;group.add(body);
+    const glass=new THREE.Mesh(new THREE.BoxGeometry(2.1,.38,1.02),new THREE.MeshStandardMaterial({color:0x243f50}));
+    glass.position.y=.88;group.add(glass);
+    const wheelMaterial=new THREE.MeshStandardMaterial({color:0x17202a});
+    for(const x of [-.8,.8])for(const z of [-.52,.52]){
+      const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.12,12),wheelMaterial);
+      wheel.rotation.x=Math.PI/2;wheel.position.set(x,.22,z);group.add(wheel);
+    }
+    return group;
   }
   render2D() {
     const ns='http://www.w3.org/2000/svg';this.svg.replaceChildren();
@@ -144,11 +164,12 @@ export class LiveMap {
       const label=add('text',{x:f.x+24,y:f.y,fill:'white','font-size':30});label.textContent=f.id;
     });
     if(this.layers.agents)this.snapshot.agents.filter(a=>a.state!=='sheltered').forEach(a=>add('circle',{cx:a.x,cy:a.y,r:6,fill:'#ffdb8c'}));
-    if(this.layers.resources)this.snapshot.resources.forEach(r=>add('rect',{x:r.x-8,y:r.y-8,width:16,height:16,fill:'#fff'}));
+    if(this.layers.resources)this.snapshot.resources.forEach(r=>add('rect',{x:r.x-8,y:r.y-8,width:16,height:16,fill:r.kind==='bus'?'#e9b949':r.kind==='boat'?'#06b6d4':'#fff'}));
   }
   setLayer(name,value){this.layers[name]=value;if(this.snapshot)this.update(this.snapshot,this.field);}
   reset(){if(this.mode==='3d'){this.camera.position.set(32,44,42);this.controls.target.set(0,0,0);}else{this.view={x:0,y:0,w:2400,h:2000};this.svg.setAttribute('viewBox','0 0 2400 2000');}}
-  zoom(factor){if(this.mode==='3d'){this.camera.position.multiplyScalar(factor);}else{this.view.w*=factor;this.view.h*=factor;this.svg.setAttribute('viewBox',`${this.view.x} ${this.view.y} ${this.view.w} ${this.view.h}`);}}
+  top(){if(this.mode==='3d'){this.camera.position.copy(this.controls.target).add(new THREE.Vector3(0,65,.01));this.controls.update();}else this.reset();}
+  zoom(factor){if(this.mode==='3d'){this.camera.position.sub(this.controls.target).multiplyScalar(factor).add(this.controls.target);}else{const w=Math.max(300,Math.min(6000,this.view.w*factor)),ratio=w/this.view.w;this.view.x+=(this.view.w-w)/2;this.view.y+=this.view.h*(1-ratio)/2;this.view.w=w;this.view.h*=ratio;this.svg.setAttribute('viewBox',`${this.view.x} ${this.view.y} ${this.view.w} ${this.view.h}`);}}
   pan(x,y){if(this.mode==='3d'){this.camera.position.x+=x;this.camera.position.z+=y;this.controls.target.x+=x;this.controls.target.z+=y;}else{this.view.x+=x*30;this.view.y+=y*30;this.svg.setAttribute('viewBox',`${this.view.x} ${this.view.y} ${this.view.w} ${this.view.h}`);}}
   dispose(){this.disposed=true;cancelAnimationFrame(this.raf);this.resize?.disconnect();this.controls?.dispose();this.scene?.traverse(o=>{o.geometry?.dispose();if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});this.renderer?.dispose();}
 }
