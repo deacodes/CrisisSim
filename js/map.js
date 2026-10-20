@@ -5,6 +5,7 @@ class RivertonCityMap {
       isCompact: false,
       showControls: true,
       showLegend: true,
+      showModeControl: false,
       allowLayerToggle: true,
       onNeighborhoodClick: null,
       ...options
@@ -62,7 +63,7 @@ class RivertonCityMap {
   }
 
   render() {
-    const { isCompact, showControls, showLegend } = this.options;
+    const { isCompact, showControls, showLegend, showModeControl } = this.options;
 
     this.container.innerHTML = `
       <div class="map-container ${isCompact ? 'compact' : ''}">
@@ -79,10 +80,15 @@ class RivertonCityMap {
             <div class="map-control-group">
               <span style="font-size:11px; font-family:var(--font-mono); color:var(--accent-flood-light);" id="map-sim-hour-tag">Hour 08.6</span>
             </div>
+            ${showModeControl ? `
+              <div class="map-control-group">
+                <button class="map-layer-btn" data-action="switch-to-3d">3D city</button>
+              </div>
+            ` : ''}
           </div>
         ` : ''}
 
-        <svg class="map-svg" viewBox="0 0 800 750" preserveAspectRatio="xMidYMid meet" style="font-family:'Prompt',sans-serif;">
+        <svg class="map-svg" viewBox="0 0 800 750" preserveAspectRatio="xMidYMid meet">
           <defs>
             <pattern id="urbanGrid" width="40" height="40" patternUnits="userSpaceOnUse">
               <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
@@ -316,7 +322,7 @@ class RivertonCityMap {
   attachEventListeners() {
     const tooltip = this.container.querySelector("#map-tooltip");
 
-    const layerButtons = this.container.querySelectorAll(".map-layer-btn");
+    const layerButtons = this.container.querySelectorAll(".map-layer-btn[data-layer]");
     layerButtons.forEach(btn => {
       btn.addEventListener("click", () => {
         const layerKey = btn.dataset.layer;
@@ -332,6 +338,11 @@ class RivertonCityMap {
       });
     });
 
+    const switchTo3d = this.container.querySelector('[data-action="switch-to-3d"]');
+    switchTo3d?.addEventListener("click", () => {
+      window.dispatchEvent(new CustomEvent("crisissim-map-mode-change", { detail: { mode: "3d" } }));
+    });
+
     const neighborhoods = this.container.querySelectorAll(".map-neighborhood");
     neighborhoods.forEach(n => {
       n.addEventListener("mouseenter", (e) => {
@@ -343,7 +354,7 @@ class RivertonCityMap {
         const flood = n.dataset.flood;
 
         tooltip.innerHTML = `
-          <strong style="color:var(--text-primary); font-family:'Prompt',sans-serif;">${name}</strong>
+          <strong style="color:var(--text-primary);">${name}</strong>
           <div style="font-size:10.5px; color:var(--text-secondary); margin-top:2px;">
             Pop: ${pop} • Vulnerability: <strong>${tier}</strong><br>
             Elevation: ${elev} • Flood Depth: <span style="color:var(--accent-flood-light);">${flood}</span>
@@ -406,3 +417,45 @@ class RivertonCityMap {
 }
 
 window.RivertonCityMap = RivertonCityMap;
+
+async function mountConfiguredRivertonMap(containerId, options = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) return null;
+
+  const mapMode = window.CrisisState?.getSettings()?.mapMode || "3d";
+  if (mapMode === "2d") return new RivertonCityMap(containerId, options);
+
+  container.innerHTML = `
+    <div class="map-load-state ${options.isCompact ? 'compact' : ''}" role="status" aria-live="polite">
+      <strong>Preparing 3D city simulation</strong>
+      <span>Loading Riverton models and map controls…</span>
+    </div>`;
+
+  try {
+    const { RivertonThreeMap } = await import("./three-map.js");
+    return new RivertonThreeMap(containerId, options);
+  } catch (error) {
+    container.innerHTML = `
+      <div class="map-load-state map-load-state-error ${options.isCompact ? 'compact' : ''}" role="alert">
+        <strong>3D simulation could not start</strong>
+        <span>The map engine is unavailable. Restart the local project server, then reload this page.</span>
+      </div>`;
+    console.error("Unable to load the 3D city simulation", error);
+    return null;
+  }
+}
+
+window.mountConfiguredRivertonMap = mountConfiguredRivertonMap;
+
+if (!window.__crisisMapModeListenerAttached) {
+  window.__crisisMapModeListenerAttached = true;
+  window.addEventListener("crisissim-map-mode-change", (event) => {
+    const mode = event.detail?.mode;
+    if (!mode || !window.CrisisState) return;
+    window.CrisisState.updateSettings({ mapMode: mode });
+
+    if (!window.location.pathname.endsWith("command-center.html")) {
+      window.location.reload();
+    }
+  });
+}

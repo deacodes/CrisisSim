@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
 
 :root {
   --bg-primary: #070b12;
@@ -17,7 +17,7 @@
   --text-muted: #8b9fb8;
   --text-inverse: #070b12;
 
-  --accent-flood: #0284c7;
+  --accent-flood: #0369a1;
   --accent-flood-light: #38bdf8;
   --accent-safe: #10b981;
   --accent-safe-bg: rgba(16, 185, 129, 0.14);
@@ -33,7 +33,7 @@
   --radius-md: 6px;
   --radius-lg: 8px;
 
-  --font-sans: 'Prompt', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   --sidebar-width: 244px;
@@ -121,6 +121,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline-offset: 1px;
 }
 
+::selection {
+  background: var(--accent-flood);
+  color: #ffffff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-secondary);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 2px solid var(--bg-secondary);
+  border-radius: 8px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
   font-family: var(--font-mono);
@@ -143,7 +172,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: sticky;
   top: 0;
   z-index: 40;
-  transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .app-sidebar.collapsed {
@@ -394,7 +422,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   height: 6px;
   border-radius: 50%;
   background: var(--accent-safe);
-  box-shadow: 0 0 6px var(--accent-safe);
 }
 
 .status-badge.status-ready {
@@ -867,7 +894,7 @@ input:checked + .switch-slider:before {
 .ops-table th {
   background: var(--bg-inset);
   color: var(--text-muted);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -900,7 +927,7 @@ input:checked + .switch-slider:before {
   gap: 4px;
   padding: 2px 7px;
   border-radius: var(--radius-xs);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -963,7 +990,7 @@ input:checked + .switch-slider:before {
 
 .alert-time {
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 600;
   white-space: nowrap;
@@ -1112,10 +1139,9 @@ input:checked + .switch-slider:before {
 }
 
 .settings-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 24px;
+  background: transparent;
+  border: 0;
+  padding: 0;
 }
 
 .settings-group {
@@ -1144,6 +1170,50 @@ input:checked + .switch-slider:before {
   width: 16px;
   height: 16px;
   color: var(--accent-flood-light);
+}
+
+.equity-table {
+  min-width: 1080px;
+}
+
+.equity-table th:nth-child(2),
+.equity-table th:nth-child(4),
+.equity-table th:nth-child(5),
+.equity-table th:nth-child(6),
+.equity-table th:nth-child(8) {
+  text-align: right;
+}
+
+.equity-table td {
+  vertical-align: middle;
+}
+
+.equity-number {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.equity-neighborhood-name {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.equity-neighborhood-code,
+.equity-distance {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.equity-distance {
+  display: inline-block;
+  margin-left: 3px;
+  white-space: nowrap;
+}
+
+.equity-table-empty {
+  color: var(--text-secondary);
+  padding: 22px 12px !important;
+  text-align: center;
 }
 
 @media print {

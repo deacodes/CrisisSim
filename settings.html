@@ -27,6 +27,23 @@
         <div class="settings-card">
           <div class="settings-group">
             <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 16-4 4-4-4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path><path d="M17 4v16"></path></svg>
+              <span>Map Rendering Mode</span>
+            </div>
+            <div style="display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:16px; align-items:end;">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label" for="setting-map-mode">Default command-center map</label>
+                <select id="setting-map-mode" class="form-control" onchange="setMapMode(this.value)">
+                  <option value="3d">3D City Simulation — interactive Riverton models</option>
+                  <option value="2d">2D Operations Map — lightweight tactical overview</option>
+                </select>
+              </div>
+              <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.5; margin:0;">The 3D simulation supports drag-to-orbit, right-drag pan, scroll/pinch zoom, and reset/top-view controls. The 2D map remains available for rapid operational review.</p>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
               <span>Appearance & Display</span>
             </div>
@@ -62,7 +79,7 @@
                 <input type="checkbox" id="setting-reduced-motion" onchange="toggleReducedMotion(this.checked)" style="margin-top:3px;">
                 <div>
                   <strong>Reduced Motion</strong>
-                  <div style="font-size:11.5px; color:var(--text-muted);">Disables agent dots animation and map pulsing</div>
+                  <div style="font-size:12px; color:var(--text-secondary);">Disables agent dots animation and map pulsing</div>
                 </div>
               </label>
 
@@ -70,7 +87,7 @@
                 <input type="checkbox" id="setting-colorblind" style="margin-top:3px;">
                 <div>
                   <strong>Color-Blind-Safe Palette</strong>
-                  <div style="font-size:11.5px; color:var(--text-muted);">Uses Viridis blue/orange safe hazard indicators</div>
+                  <div style="font-size:12px; color:var(--text-secondary);">Uses Viridis blue/orange safe hazard indicators</div>
                 </div>
               </label>
             </div>
@@ -180,6 +197,7 @@
       document.getElementById("setting-large-labels").checked = !!s.largerLabels;
       document.getElementById("setting-reduced-motion").checked = !!s.reducedMotion;
       document.getElementById("setting-colorblind").checked = !!s.colorblindMode;
+      document.getElementById("setting-map-mode").value = s.mapMode || "3d";
     }
 
     function onThemeSelect(val) {
@@ -200,6 +218,11 @@
     function toggleReducedMotion(checked) {
       window.CrisisState.updateSettings({ reducedMotion: checked });
       CrisisCommon.showToast(`Reduced Motion: ${checked ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function setMapMode(value) {
+      window.CrisisState.updateSettings({ mapMode: value });
+      CrisisCommon.showToast(`Default map mode: ${value === "3d" ? "3D city simulation" : "2D operations map"}`);
     }
 
     function saveAllSettings() {
