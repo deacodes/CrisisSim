@@ -54,6 +54,11 @@
     .timeline-dot.warning { background: var(--accent-caution); }
     .timeline-dot.safe { background: var(--accent-safe); }
     .timeline-dot.info { background: var(--accent-flood-light); }
+    .timeline-dot.caution { background: var(--accent-caution); }
+    .timeline-event { position:relative; }
+    .timeline-event-time { font-size:12px; font-family:var(--font-mono); color:var(--text-muted); font-weight:700; }
+    .timeline-event-title { font-weight:700; font-size:12.5px; color:var(--text-primary); margin:2px 0; }
+    .timeline-event-description { font-size:12px; color:var(--text-secondary); line-height:1.4; }
   </style>
 </head>
 <body>
@@ -157,7 +162,7 @@
               <span class="badge badge-danger">Peak Crest: 6.8m</span>
             </div>
             <div id="dyn-chart-flood" style="height:170px;">
-              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:var(--font-sans);">
                 <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
                 <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
                 <line x1="40" y1="80" x2="420" y2="80" stroke="var(--accent-danger)" stroke-width="1.5" stroke-dasharray="4 2"/>
@@ -185,7 +190,7 @@
               <span class="badge badge-warning">42% Min Open</span>
             </div>
             <div id="dyn-chart-road" style="height:170px;">
-              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:var(--font-sans);">
                 <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
                 <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
                 <path d="M 40 30 L 90 40 L 140 75 L 230 115 L 320 95 L 420 60" fill="none" stroke="var(--accent-caution)" stroke-width="2.5"/>
@@ -209,7 +214,7 @@
               <span class="badge badge-info">Capacity Surge</span>
             </div>
             <div id="dyn-chart-shelter" style="height:170px;">
-              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:var(--font-sans);">
                 <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
                 <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
                 <path d="M 40 135 L 120 100 L 230 40 L 420 45" fill="none" stroke="var(--accent-caution)" stroke-width="2"/>
@@ -236,7 +241,7 @@
               <span class="badge badge-warning">74% Peak Load</span>
             </div>
             <div id="dyn-chart-hospital" style="height:170px;">
-              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:'Prompt',sans-serif;">
+              <svg viewBox="0 0 440 170" style="width:100%; height:auto; font-family:var(--font-sans);">
                 <line x1="40" y1="140" x2="420" y2="140" stroke="var(--border-subtle)"/>
                 <line x1="40" y1="20" x2="40" y2="140" stroke="var(--border-subtle)"/>
                 <path d="M 40 100 L 120 85 L 230 45 L 350 48 L 420 55" fill="none" stroke="var(--accent-danger)" stroke-width="2.5"/>
@@ -263,16 +268,7 @@
               </div>
               <span class="badge badge-info">8 Major Events</span>
             </div>
-            <div style="position:relative; padding-left:16px; border-left:2px solid var(--border-subtle); display:flex; flex-direction:column; gap:12px; margin:8px 0;">
-              ${(window.CrisisData?.SYSTEM_TIMELINE || []).map(evt => `
-                <div style="position:relative;">
-                  <div class="timeline-dot ${evt.level}"></div>
-                  <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-muted); font-weight:700;">${evt.time} (Hour ${evt.hour})</div>
-                  <div style="font-weight:700; font-size:12px; color:var(--text-primary); margin:1px 0;">${evt.title}</div>
-                  <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.35;">${evt.desc}</div>
-                </div>
-              `).join('')}
-            </div>
+            <div id="system-timeline" style="position:relative; padding-left:16px; border-left:2px solid var(--border-subtle); display:flex; flex-direction:column; gap:12px; margin:8px 0;"></div>
           </div>
 
           <div style="display:flex; flex-direction:column; gap:12px;">
@@ -332,7 +328,28 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       CrisisCommon.initShell("dynamics");
+      renderSystemTimeline();
     });
+
+    function renderSystemTimeline() {
+      const timeline = document.getElementById("system-timeline");
+      const events = window.CrisisData?.SYSTEM_TIMELINE || [];
+      if (!timeline) return;
+
+      if (!events.length) {
+        timeline.innerHTML = '<div style="color:var(--text-secondary); font-size:12px;">No event milestones are available for this scenario.</div>';
+        return;
+      }
+
+      timeline.innerHTML = events.map((event) => `
+        <article class="timeline-event">
+          <div class="timeline-dot ${event.level}"></div>
+          <div class="timeline-event-time">${event.time} · Hour ${event.hour}</div>
+          <div class="timeline-event-title">${event.title}</div>
+          <div class="timeline-event-description">${event.desc}</div>
+        </article>
+      `).join("");
+    }
   </script>
 </body>
 </html>

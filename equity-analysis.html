@@ -29,14 +29,14 @@
           <div style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:20px;">
               <div style="text-align:center; padding:12px 20px; background:var(--bg-inset); border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
-                <div style="font-size:10.5px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Overall Equity Score</div>
+                <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Overall Equity Score</div>
                 <div class="tabular-nums" style="font-size:36px; font-weight:800; color:var(--accent-safe); line-height:1.1;">0.82</div>
-                <div style="font-size:11px; color:var(--accent-safe); font-weight:600;">+0.28 vs Baseline (0.54)</div>
+                <div style="font-size:12px; color:var(--accent-safe); font-weight:600;">+0.28 vs Baseline (0.54)</div>
               </div>
               <div style="max-width:700px;">
-                <h3 style="font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">
+                <h2 style="font-size:15px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">
                   What Does an Equity Score of 0.82 Mean?
-                </h3>
+                </h2>
                 <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
                   CrisisSim evaluates fairness using a normalized Gini parity metric on a <strong>0.00 to 1.00</strong> scale. A score of <strong>1.00</strong> represents complete parity where transit wait times and evacuation survival are equal across all income and mobility tiers. In the baseline policy (0.54), low-income canal basin residents faced a <strong>3.4× higher stranded risk</strong> than hillside homeowners. Under the active optimized strategy (0.82), that disparity ratio has been compressed to <strong>1.2×</strong>.
                 </p>
@@ -87,7 +87,7 @@
               <span class="badge badge-info">Baseline vs. Optimized</span>
             </div>
             <div id="chart-disparity-bars" style="height:190px;"></div>
-            <div style="display:flex; justify-content:center; gap:20px; font-size:11px; margin-top:8px;">
+            <div style="display:flex; justify-content:center; gap:20px; font-size:12px; margin-top:8px;">
               <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; background:#64748b; border-radius:2px;"></span> Baseline Policy</span>
               <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; background:var(--accent-safe); border-radius:2px;"></span> Optimized Policy</span>
             </div>
@@ -114,7 +114,7 @@
             <span class="badge badge-info">8 Districts Tracked</span>
           </div>
           <div class="table-responsive">
-            <table class="ops-table">
+            <table class="ops-table equity-table">
               <thead>
                 <tr>
                   <th>Neighborhood</th>
@@ -127,33 +127,7 @@
                   <th>Resources / 1k Pop</th>
                 </tr>
               </thead>
-              <tbody>
-                ${(window.CrisisData?.NEIGHBORHOODS || []).map(n => `
-                  <tr class="${n.id === 'N5' ? 'highlight-row' : ''}">
-                    <td>
-                      <strong style="color:var(--text-primary);">${n.name}</strong>
-                      <div style="font-size:10.5px; color:var(--text-muted);">${n.code}</div>
-                    </td>
-                    <td class="tabular-nums">${n.population.toLocaleString()}</td>
-                    <td>
-                      <span class="badge ${n.vulnerabilityScore > 0.7 ? 'badge-danger' : (n.vulnerabilityScore > 0.4 ? 'badge-warning' : 'badge-success')}">
-                        ${n.vulnerabilityScore} (${n.vulnerabilityTier})
-                      </span>
-                    </td>
-                    <td class="tabular-nums" style="font-weight:700; color:${n.evacuationSuccessRate > 85 ? 'var(--accent-safe)' : 'var(--accent-danger)'};">
-                      ${n.evacuationSuccessRate}%
-                    </td>
-                    <td class="tabular-nums">${n.estimatedSafeTravelTime} hrs</td>
-                    <td class="tabular-nums" style="color:${(100 - n.evacuationSuccessRate) > 20 ? 'var(--accent-danger)' : 'var(--text-muted)'};">
-                      ${(100 - n.evacuationSuccessRate).toFixed(1)}%
-                    </td>
-                    <td>${n.nearestShelter} (${n.shelterDistanceKm} km)</td>
-                    <td class="tabular-nums" style="font-weight:600;">
-                      ${n.resourcesPer1k} units
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
+              <tbody id="equity-table-body"></tbody>
             </table>
           </div>
         </div>
@@ -167,10 +141,48 @@
   <script src="js/charts.js"></script>
   <script src="js/map.js"></script>
   <script>
+    function renderEquityTable() {
+      const tableBody = document.getElementById("equity-table-body");
+      const neighborhoods = window.CrisisData?.NEIGHBORHOODS || [];
+      if (!tableBody) return;
+
+      if (!neighborhoods.length) {
+        tableBody.innerHTML = '<tr><td colspan="8" class="equity-table-empty">Neighborhood data is unavailable. Refresh the page to retry.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = neighborhoods.map((neighborhood) => {
+        const riskBadge = neighborhood.vulnerabilityScore > 0.7
+          ? "badge-danger"
+          : neighborhood.vulnerabilityScore > 0.4 ? "badge-warning" : "badge-success";
+        const evacuationColor = neighborhood.evacuationSuccessRate > 85
+          ? "var(--accent-safe)" : "var(--accent-danger)";
+        const strandedColor = (100 - neighborhood.evacuationSuccessRate) > 20
+          ? "var(--accent-danger)" : "var(--text-muted)";
+
+        return `
+          <tr class="${neighborhood.id === "N5" ? "highlight-row" : ""}">
+            <td>
+              <strong class="equity-neighborhood-name">${neighborhood.name}</strong>
+              <div class="equity-neighborhood-code">${neighborhood.code}</div>
+            </td>
+            <td class="tabular-nums equity-number">${neighborhood.population.toLocaleString()}</td>
+            <td><span class="badge ${riskBadge}">${neighborhood.vulnerabilityScore} · ${neighborhood.vulnerabilityTier}</span></td>
+            <td class="tabular-nums equity-number" style="font-weight:700; color:${evacuationColor};">${neighborhood.evacuationSuccessRate}%</td>
+            <td class="tabular-nums equity-number">${neighborhood.estimatedSafeTravelTime} hrs</td>
+            <td class="tabular-nums equity-number" style="color:${strandedColor};">${(100 - neighborhood.evacuationSuccessRate).toFixed(1)}%</td>
+            <td>${neighborhood.nearestShelter} <span class="equity-distance">${neighborhood.shelterDistanceKm} km</span></td>
+            <td class="tabular-nums equity-number" style="font-weight:600;">${neighborhood.resourcesPer1k} units</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       CrisisCommon.initShell("equity");
+      renderEquityTable();
       CrisisCharts.renderEquityDisparityBarChart("chart-disparity-bars");
-      new RivertonCityMap("equity-map-wrapper", {
+      window.mountConfiguredRivertonMap("equity-map-wrapper", {
         isCompact: true,
         showControls: false,
         showLegend: false

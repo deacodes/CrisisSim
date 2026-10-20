@@ -90,7 +90,7 @@
 
                 <div class="product-statement-banner" style="background:rgba(16, 185, 129, 0.08); border-color:rgba(16, 185, 129, 0.3);">
           <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:20px;">📊</div>
+            
             <div>
               <div class="product-statement-text" style="color:var(--accent-safe); font-size:14px;">
                 Optimized policy: 86% ± 5% safely evacuated (95% Confidence Interval)
@@ -209,7 +209,7 @@
     }
 
     function runMonteCarlo() {
-      CrisisCommon.showToast("Executing stochastic Monte Carlo ensemble across Riverton digital twin...");
+      CrisisCommon.showToast("Executing stochastic Monte Carlo ensemble across the Riverton simulation...");
       setTimeout(() => {
         CrisisCharts.renderMonteCarloDistribution("chart-mc-distribution");
         CrisisCharts.renderSensitivityTornado("chart-sensitivity-tornado");
