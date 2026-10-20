@@ -1,0 +1,44 @@
+services:
+  database:
+    image: postgis/postgis:16-3.5
+    environment:
+      POSTGRES_USER: crisis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: crisis
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crisis"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+  api:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    environment: &engine-env
+      DATABASE_URL: postgresql+psycopg://crisis:${POSTGRES_PASSWORD}@database/crisis
+      REDIS_URL: redis://redis:6379/0
+      CRISIS_QUEUE: celery
+      CRISIS_RUNTIME: /data
+    volumes: ["artifacts:/data"]
+    depends_on:
+      database: {condition: service_healthy}
+      redis: {condition: service_started}
+    command: ["sh", "-c", "alembic upgrade head && uvicorn backend.api:app --host 0.0.0.0 --port 8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+  worker:
+    build: .
+    environment: *engine-env
+    volumes: ["artifacts:/data"]
+    depends_on:
+      api: {condition: service_healthy}
+    command: ["celery", "-A", "backend.tasks:celery", "worker", "--concurrency=2", "--loglevel=INFO"]
+volumes:
+  database:
+  artifacts:

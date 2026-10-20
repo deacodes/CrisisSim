@@ -1,0 +1,8 @@
+.git
+.venv
+runtime
+work
+.env
+__pycache__
+.pytest_cache
+.hypothesis
