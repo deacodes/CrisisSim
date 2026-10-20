@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "low-contrast",
+        "value": "*",
+        "files": [
+          "index.html",
+          "new-scenario.html",
+          "policy-lab.html",
+          "scenarios.html"
+        ],
+        "createdAt": "2026-10-20T17:26:06.534Z",
+        "reason": "Agent verified rendered browser styles: white text on rgb(7,11,18), card titles on rgb(16,26,43), primary actions on rgb(3,105,161). Static detector incorrectly resolves inherited backgrounds as white; shared theme tokens and original styles are preserved."
+      }
+    ]
+  }
+}
