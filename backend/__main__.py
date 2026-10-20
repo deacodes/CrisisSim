@@ -32,7 +32,8 @@ def main():
     manifest = {
         "status": "running", "model_version": __version__, "anuga": version("anuga"),
         "scenario": scenario.model_dump(), "city": city["version"], "disclaimer": DISCLAIMER,
-        "limitations": ["Closed-basin boundaries", "Uniform mesh; no refinement",
+        "limitations": [f"Boundary mode: {scenario.flood.boundary_mode}",
+                        f"Channel refinement: {scenario.flood.channel_refinement}",
                         "Nearest-centroid spatial sampling", "No evacuation coupling yet",
                         "Arrival/maxima sampled at output times; not substep extrema"],
     }

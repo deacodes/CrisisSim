@@ -16,9 +16,21 @@ class FloodModel:
                  initial_depth=None):
         self.config = config
         n = config.mesh_cells_per_axis
-        self.domain = d = anuga.rectangular_cross_domain(n, n, len1=width, len2=height)
+        if config.channel_refinement:
+            polygon = [[0, 0], [width, 0], [width, height], [0, height]]
+            strip = [[width*.35, height*.01], [width*.65, height*.01],
+                     [width*.65, height*.99], [width*.35, height*.99]]
+            area = width * height / (4 * n * n)
+            d = anuga.create_domain_from_regions(
+                polygon, boundary_tags={"bottom": [0], "right": [1], "top": [2], "left": [3]},
+                maximum_triangle_area=area, interior_regions=[(strip, area/4)],
+                use_cache=False, verbose=False)
+        else:
+            d = anuga.rectangular_cross_domain(n, n, len1=width, len2=height)
+        self.domain = d
         d.set_store(False)
         d.set_flow_algorithm("DE0")
+        d.set_cfl(config.cfl)
         d.set_quantity("elevation", bed)
         d.set_quantity("friction", config.manning_n)
         z = d.quantities["elevation"].centroid_values
@@ -26,7 +38,15 @@ class FloodModel:
             d.set_quantity("stage", lambda x, y: np.maximum(bed(x, y), config.initial_stage_m))
         else:
             d.set_quantity("stage", lambda x, y: bed(x, y) + initial_depth(x, y))
-        d.set_boundary({tag: anuga.Reflective_boundary(d) for tag in d.get_boundary_tags()})
+        boundaries = {}
+        for tag in d.get_boundary_tags():
+            if config.boundary_mode == "transmissive":
+                boundaries[tag] = anuga.Transmissive_boundary(d)
+            elif config.boundary_mode == "stage" and tag in ("top", "bottom"):
+                boundaries[tag] = anuga.Dirichlet_boundary([config.boundary_stage_m, 0, 0])
+            else:
+                boundaries[tag] = anuga.Reflective_boundary(d)
+        d.set_boundary(boundaries)
         # Sequential operators add stationary rainfall, then remove available
         # water with proportionate momentum reduction (ANUGA Rate_operator).
         self.sources = {
@@ -57,11 +77,13 @@ class FloodModel:
             self.arrival_s[arrived] = time
             volumes = {name: float(op.cumulative_influx) for name, op in self.sources.items()}
             volume = float(np.dot(depth, d.areas))
-            residual = volume - self.initial_volume - sum(volumes.values())
+            boundary_inflow = float(d.get_boundary_flux_integral())
+            residual = volume - self.initial_volume - sum(volumes.values()) - boundary_inflow
             yield {
                 "time_s": float(time), "depth_m": depth, "stage_m": stage,
                 "velocity_m_s": velocity, "bed_m": bed, "volume_m3": volume,
                 "source_volumes_m3": volumes, "mass_residual_m3": residual,
+                "boundary_inflow_m3": boundary_inflow,
                 "max_depth_m": self.max_depth.copy(), "arrival_s": self.arrival_s.copy(),
             }
 

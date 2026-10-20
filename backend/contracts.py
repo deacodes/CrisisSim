@@ -15,9 +15,13 @@ class FloodConfig(Contract):
     infiltration_mm_h: float = Field(default=5, ge=0, le=100)
     drainage_mm_h: float = Field(default=2, ge=0, le=100)
     initial_stage_m: float = Field(default=0, ge=0, le=20)
-    manning_n: float = Field(default=0.035, gt=0, le=0.3)
+    manning_n: float = Field(default=0.035, ge=0, le=0.3)
     mesh_cells_per_axis: int = Field(default=16, ge=4, le=128)
     wet_threshold_m: float = Field(default=0.01, gt=0, le=1)
+    boundary_mode: Literal["closed", "transmissive", "stage"] = "closed"
+    boundary_stage_m: float = Field(default=0, ge=-20, le=50)
+    channel_refinement: bool = False
+    cfl: float = Field(default=.9, gt=0, le=.9)
 
     @model_validator(mode="after")
     def limit_outputs(self):
