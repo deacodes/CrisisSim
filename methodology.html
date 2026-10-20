@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Methodology & Digital Twin Architecture — CrisisSim</title>
+  <title>Methodology & Simulation Architecture — CrisisSim</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
     .math-formula-box {
@@ -51,7 +51,7 @@
       <main class="page-viewport" style="max-width:1160px;">
         <div class="page-header">
           <div class="page-header-text">
-            <h1 class="page-title">Technical Methodology & Digital Twin Mechanics</h1>
+            <h1 class="page-title">Technical Methodology & Simulation Mechanics</h1>
             <div class="page-subtitle">Scientific documentation of hydrodynamic flow approximations, agent behavior heuristics, and equity quantification models.</div>
           </div>
           <div class="page-actions">
@@ -62,8 +62,8 @@
         <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px; align-items:flex-start;">
           <div>
             <nav class="methodology-nav">
-              <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.04em;">Contents</div>
-              <a href="#digital-twin">1. Synthetic Digital Twin</a>
+              <div style="font-size:12px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.04em;">Contents</div>
+              <a href="#city-model">1. Synthetic City Model</a>
               <a href="#flood-model">2. Flood Propagation</a>
               <a href="#agent-behavior">3. Evacuation Agents</a>
               <a href="#dynamic-routing">4. Route Impedance</a>
@@ -76,8 +76,8 @@
           </div>
 
           <article class="doc-article">
-            <section class="doc-section" id="digital-twin">
-              <h2 class="doc-title">1. Synthetic-City Digital Twin Architecture</h2>
+            <section class="doc-section" id="city-model">
+              <h2 class="doc-title">1. Synthetic-City Model Architecture</h2>
               <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:12px;">
                 Riverton is a synthetic metropolitan area designed to exhibit realistic urban topography and demographic disparities without relying on sensitive real-world individual data. The spatial grid is constructed using a 10-meter Digital Elevation Model (DEM) featuring a central alluvial river valley, two elevated bluffs, and an engineered canal basin.
               </p>
@@ -127,7 +127,7 @@
             <section class="doc-section" id="optimization">
               <h2 class="doc-title">5. Heuristic Policy Optimization (Pareto Frontier)</h2>
               <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
-                Emergency managers must balance competing objectives. The "AI-Optimized" response uses deterministic multi-objective genetic heuristics to trace the Pareto frontier across:
+                Emergency managers must balance competing objectives. The optimized response uses deterministic multi-objective genetic heuristics to trace the Pareto frontier across:
               </p>
               <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; font-size:12px;">
                 <div style="background:var(--bg-inset); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
@@ -184,7 +184,7 @@
                 <div>• USGS National Elevation Dataset (NED) 10m topological profile standards</div>
                 <div>• U.S. Census Bureau Social Vulnerability Index (SVI) percentile distribution equations</div>
                 <div>• Federal Emergency Management Agency (FEMA) HAZUS Flood Model technical guidelines</div>
-                <div>• GitHub Repository: <code style="color:var(--accent-flood-light); font-family:var(--font-mono);">github.com/hackathon-crisissim/crisissim-digital-twin</code></div>
+
               </div>
             </section>
           </article>
