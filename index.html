@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrisisSim — Emergency Response Digital Twin</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/map.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport">
+        <div class="product-statement-banner">
+          <div>
+            <div class="product-statement-text">Test fairer emergency-response strategies before disasters happen.</div>
+            <div class="product-statement-sub">Evaluate municipal flood interventions across safety, speed, municipal cost, and neighborhood equity.</div>
+          </div>
+          <div class="page-actions">
+            <a href="command-center.html" class="btn btn-primary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Continue Simulation</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Emergency response overview</h1>
+            <div class="page-subtitle">Current active scenario: <strong style="color:var(--text-primary);">Riverton Flood — Central City</strong> • Cat 3 Riverine Model</div>
+          </div>
+          <div class="page-actions">
+            <a href="scenarios.html" class="btn btn-secondary btn-sm">Scenario Library</a>
+            <a href="command-center.html" class="btn btn-primary btn-sm">Enter Command Center</a>
+          </div>
+        </div>
+
+        <div class="metrics-grid-4">
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Safely Evacuated</span>
+              <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="metric-value">12,480</div>
+            <div class="metric-sub positive">
+              <span>↑ +34% vs baseline</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Stranded Residents</span>
+              <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div class="metric-value" style="color:var(--accent-danger);">1,230</div>
+            <div class="metric-sub positive">
+              <span>↓ -62% vs baseline</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Avg Evacuation Time</span>
+              <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="metric-value">4.8 <span style="font-size:16px; font-weight:500;">hrs</span></div>
+            <div class="metric-sub positive">
+              <span>↓ -40% vs baseline</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Equity Score</span>
+              <svg class="metric-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M3 12h3M18 12h3M12 3v3M12 18v3"></path></svg>
+            </div>
+            <div class="metric-value" style="color:var(--accent-safe);">0.82</div>
+            <div class="metric-sub positive">
+              <span>↑ +0.28 vs baseline</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1.55fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="card" style="display:flex; flex-direction:column; padding:0; overflow:hidden;">
+            <div class="card-header" style="padding:12px 16px; margin:0; background:var(--bg-card);">
+              <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg>
+                <span>Riverton Spatial Risk & Evacuation Preview</span>
+              </div>
+              <a href="command-center.html" class="btn btn-secondary btn-sm" style="font-size:11px;">
+                Open Full Interactive Map →
+              </a>
+            </div>
+            <div id="dashboard-map-container" style="height:410px; width:100%;"></div>
+            <div style="padding:8px 16px; background:var(--bg-inset); font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border-subtle);">
+              <span>Showing 8 neighborhoods • Active flood crest projection: 2.8m</span>
+              <span style="color:var(--accent-flood-light);">Click any area to inspect details</span>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  <span>Evacuation Progress (24h Trend)</span>
+                </div>
+                <span class="badge badge-info">Optimized vs Baseline</span>
+              </div>
+              <div id="dashboard-progress-chart" style="height:140px; margin-bottom:8px;"></div>
+              <div style="display:flex; gap:14px; font-size:11px; color:var(--text-secondary); border-top:1px solid var(--border-subtle); padding-top:8px;">
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:var(--accent-safe); border-radius:2px;"></span> Evacuated (12,480)</span>
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:var(--accent-danger); border-radius:2px;"></span> Stranded (1,230)</span>
+                <span style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:2px; background:var(--text-muted);"></span> Baseline (9,280)</span>
+              </div>
+            </div>
+
+            <div class="card" style="flex:1;">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+                  <span>Critical Operational Alerts</span>
+                </div>
+                <span class="badge badge-danger">3 Active</span>
+              </div>
+              <div class="alert-item alert-danger">
+                <div class="alert-time">T+04:12</div>
+                <div>
+                  <div class="alert-title">Bridge 3 approaching closure</div>
+                  <div class="alert-desc">River gauge reaches 15cm from lower bridge truss. Primary egress for Neighborhood 5 under imminent closure.</div>
+                </div>
+              </div>
+              <div class="alert-item alert-warning">
+                <div class="alert-time">T+05:06</div>
+                <div>
+                  <div class="alert-title">North Shelter at 82% capacity</div>
+                  <div class="alert-desc">Civic Arena reaching nominal limit (2,870/3,500). Diverting intake corridor toward East Pavilion.</div>
+                </div>
+              </div>
+              <div class="alert-item alert-warning">
+                <div class="alert-time">T+03:30</div>
+                <div>
+                  <div class="alert-title">Neighborhood 5 has limited safe routes</div>
+                  <div class="alert-desc">Canal levee seepage has blocked secondary egress on Canal Blvd. High transit-dependent population vulnerable.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon></svg>
+              <span>Recent Simulation Scenarios</span>
+            </div>
+            <a href="scenarios.html" class="btn btn-secondary btn-sm">View All in Library →</a>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
+            <div class="card" style="background:var(--bg-inset); border-color:var(--border-subtle);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text-primary); font-size:13px;">Baseline Flood</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Unmitigated municipal response</div>
+                </div>
+                <span class="badge badge-neutral">Baseline</span>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px; margin:8px 0;">
+                <div>Safe: <strong class="tabular-nums">9,280</strong> (74%)</div>
+                <div>Stranded: <strong class="tabular-nums" style="color:var(--accent-danger);">3,210</strong></div>
+                <div>Avg Time: <strong class="tabular-nums">8.1 hrs</strong></div>
+                <div>Equity: <strong class="tabular-nums">0.54</strong></div>
+              </div>
+              <div style="border-top:1px solid var(--border-subtle); padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Cost: $4.2M</span>
+                <a href="command-center.html" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;">Load</a>
+              </div>
+            </div>
+
+            <div class="card" style="background:var(--bg-inset); border-color:var(--border-subtle);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text-primary); font-size:13px;">Shelter-First Response</div>
+                  <div style="font-size:11px; color:var(--text-muted);">Auxiliary shelter pre-deployment</div>
+                </div>
+                <span class="badge badge-info">Capacity</span>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px; margin:8px 0;">
+                <div>Safe: <strong class="tabular-nums">11,760</strong> (86%)</div>
+                <div>Stranded: <strong class="tabular-nums">1,840</strong></div>
+                <div>Avg Time: <strong class="tabular-nums">5.6 hrs</strong></div>
+                <div>Equity: <strong class="tabular-nums">0.76</strong></div>
+              </div>
+              <div style="border-top:1px solid var(--border-subtle); padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Cost: $9.8M</span>
+                <a href="command-center.html" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:11px;">Load</a>
+              </div>
+            </div>
+
+            <div class="card" style="background:var(--bg-surface); border-color:var(--accent-flood-light);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                <div>
+                  <div style="font-weight:700; color:var(--text-primary); font-size:13px;">Optimized Response</div>
+                  <div style="font-size:11px; color:var(--accent-flood-light);">Active Flagship Digital Twin</div>
+                </div>
+                <span class="badge badge-success">Active</span>
+              </div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11.5px; margin:8px 0;">
+                <div>Safe: <strong class="tabular-nums" style="color:var(--accent-safe);">12,480</strong> (91%)</div>
+                <div>Stranded: <strong class="tabular-nums">1,230</strong></div>
+                <div>Avg Time: <strong class="tabular-nums">4.8 hrs</strong></div>
+                <div>Equity: <strong class="tabular-nums" style="color:var(--accent-safe);">0.82</strong></div>
+              </div>
+              <div style="border-top:1px solid var(--border-subtle); padding-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono);">Cost: $12.0M</span>
+                <a href="command-center.html" class="btn btn-primary btn-sm" style="padding:2px 8px; font-size:11px;">Continue Sim →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("dashboard");
+      CrisisCharts.renderEvacuationProgressChart("dashboard-progress-chart");
+      new RivertonCityMap("dashboard-map-container", { isCompact: true, showControls: false });
+    });
+  </script>
+</body>
+</html>
