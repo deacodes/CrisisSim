@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Settings — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport" style="max-width:980px;">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Application Preferences & Configuration</h1>
+            <div class="page-subtitle">Configure theme appearance, accessibility options, default simulation parameters, and scenario data storage.</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm" onclick="saveAllSettings()">Save Preferences</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-group">
+            <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+              <span>Appearance & Display</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Color Theme</label>
+                <select id="setting-theme" class="form-control" onchange="onThemeSelect(this.value)">
+                  <option value="dark">Deep Charcoal / Navy (Default Operations EOC)</option>
+                  <option value="light">Light Slate (High-Ambient Room)</option>
+                </select>
+              </div>
+
+              <div style="display:flex; flex-direction:column; justify-content:center; gap:10px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:default;">
+                  <input type="checkbox" id="setting-high-contrast" onchange="toggleHighContrast(this.checked)">
+                  <span><strong>High-Contrast Mode</strong> (Strict Black/White Borders)</span>
+                </label>
+                <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:default;">
+                  <input type="checkbox" id="setting-large-labels" onchange="toggleLargeLabels(this.checked)">
+                  <span><strong>Larger Map Labels</strong> (High-DPI Overhead Displays)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg>
+              <span>Accessibility & Motion</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+              <label style="display:flex; align-items:flex-start; gap:8px; font-size:12.5px; cursor:default;">
+                <input type="checkbox" id="setting-reduced-motion" onchange="toggleReducedMotion(this.checked)" style="margin-top:3px;">
+                <div>
+                  <strong>Reduced Motion</strong>
+                  <div style="font-size:11.5px; color:var(--text-muted);">Disables agent dots animation and map pulsing</div>
+                </div>
+              </label>
+
+              <label style="display:flex; align-items:flex-start; gap:8px; font-size:12.5px; cursor:default;">
+                <input type="checkbox" id="setting-colorblind" style="margin-top:3px;">
+                <div>
+                  <strong>Color-Blind-Safe Palette</strong>
+                  <div style="font-size:11.5px; color:var(--text-muted);">Uses Viridis blue/orange safe hazard indicators</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon></svg>
+              <span>Map Layer Defaults</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; font-size:12.5px;">
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-flood" checked> Show Flood Depth Inundation
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-routes" checked> Show Evacuation Routes
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-agents" checked> Show Resident Agent Particles
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-infra" checked> Show Infrastructure & Hospitals
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-access" checked> Show Bridge & Road Closures
+              </label>
+              <label style="display:flex; align-items:center; gap:8px; cursor:default;">
+                <input type="checkbox" id="map-def-vuln" checked> Show Vulnerability Highlights
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Simulation Engine Parameters</span>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Default Simulation Speed</label>
+                <select id="sim-def-speed" class="form-control">
+                  <option value="1" selected>1× Realtime Pace</option>
+                  <option value="5">5× Fast Analysis</option>
+                  <option value="20">20× Accelerated</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Default Agent Count</label>
+                <select id="sim-def-agents" class="form-control">
+                  <option value="low">Low (500 synthetic sample)</option>
+                  <option value="medium" selected>Medium (2,500 sample agents)</option>
+                  <option value="high">High (10,000 full resolution)</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Default Monte Carlo Runs</label>
+                <select id="sim-def-mc" class="form-control">
+                  <option value="10">10 Iterations (Quick test)</option>
+                  <option value="50" selected>50 Iterations (Balanced)</option>
+                  <option value="100">100 Iterations (Strict 95% CI)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-group-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Scenario Data Management (localStorage)</span>
+            </div>
+            <p style="font-size:12.5px; color:var(--text-secondary); margin-bottom:14px; line-height:1.5;">
+              All custom simulation scenarios, policy configurations, and settings are saved exclusively in your browser’s local storage. You can backup your scenarios as a JSON file or restore default Riverton data.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="exportScenarioJSON()">
+                Export Scenarios (JSON)
+              </button>
+              <label class="btn btn-secondary btn-sm" style="margin:0; cursor:pointer;">
+                Import Scenarios (JSON)
+                <input type="file" id="import-json-input" accept=".json" style="display:none;" onchange="importScenarioJSON(event)">
+              </label>
+              <button class="btn btn-danger btn-sm" onclick="resetAllData()">
+                Reset to Factory Scenarios
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("settings");
+      loadCurrentSettings();
+    });
+
+    function loadCurrentSettings() {
+      const s = window.CrisisState.getSettings();
+      document.getElementById("setting-theme").value = s.theme;
+      document.getElementById("setting-high-contrast").checked = !!s.highContrast;
+      document.getElementById("setting-large-labels").checked = !!s.largerLabels;
+      document.getElementById("setting-reduced-motion").checked = !!s.reducedMotion;
+      document.getElementById("setting-colorblind").checked = !!s.colorblindMode;
+    }
+
+    function onThemeSelect(val) {
+      window.CrisisState.updateSettings({ theme: val });
+      CrisisCommon.showToast(`Applied ${val.toUpperCase()} theme`);
+    }
+
+    function toggleHighContrast(checked) {
+      window.CrisisState.updateSettings({ highContrast: checked });
+      CrisisCommon.showToast(`High Contrast: ${checked ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function toggleLargeLabels(checked) {
+      window.CrisisState.updateSettings({ largerLabels: checked });
+      CrisisCommon.showToast(`Larger Map Labels: ${checked ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function toggleReducedMotion(checked) {
+      window.CrisisState.updateSettings({ reducedMotion: checked });
+      CrisisCommon.showToast(`Reduced Motion: ${checked ? 'Enabled' : 'Disabled'}`);
+    }
+
+    function saveAllSettings() {
+      CrisisCommon.showToast("All application preferences saved successfully!");
+    }
+
+    function exportScenarioJSON() {
+      const data = {
+        version: "CrisisSim_v1.0",
+        timestamp: new Date().toISOString(),
+        scenarios: window.CrisisState.getScenarios(),
+        settings: window.CrisisState.getSettings()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `CrisisSim_Riverton_Scenarios_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      CrisisCommon.showToast("Downloaded scenario package JSON");
+    }
+
+    function importScenarioJSON(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed && Array.isArray(parsed.scenarios)) {
+            parsed.scenarios.forEach(sc => window.CrisisState.createScenario(sc));
+            CrisisCommon.showToast(`Imported ${parsed.scenarios.length} scenarios!`);
+          } else {
+            alert("Invalid scenario JSON format");
+          }
+        } catch (err) {
+          alert("Error parsing JSON file: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAllData() {
+      if (confirm("Reset all scenario data to factory Riverton defaults? Any custom scenarios will be replaced.")) {
+        window.CrisisState.resetScenariosToDefault();
+        CrisisCommon.showToast("Reset all scenarios to default", "danger");
+      }
+    }
+  </script>
+</body>
+</html>

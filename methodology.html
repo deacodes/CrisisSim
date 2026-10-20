@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Methodology & Digital Twin Architecture — CrisisSim</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .math-formula-box {
+      background: var(--bg-inset);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 18px;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      color: var(--accent-flood-light);
+      margin: 10px 0;
+      display: inline-block;
+    }
+    .methodology-nav {
+      position: sticky;
+      top: calc(var(--header-height) + 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+    .methodology-nav a {
+      padding: 6px 10px;
+      border-radius: var(--radius-xs);
+      color: var(--text-secondary);
+      transition: background 0.15s, color 0.15s;
+    }
+    .methodology-nav a:hover {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+
+    <div class="app-main">
+      <header class="app-header" id="app-header"></header>
+
+      <main class="page-viewport" style="max-width:1160px;">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h1 class="page-title">Technical Methodology & Digital Twin Mechanics</h1>
+            <div class="page-subtitle">Scientific documentation of hydrodynamic flow approximations, agent behavior heuristics, and equity quantification models.</div>
+          </div>
+          <div class="page-actions">
+            <span class="badge badge-info">v2.4 Technical Specification</span>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 240px 1fr; gap:24px; align-items:flex-start;">
+          <div>
+            <nav class="methodology-nav">
+              <div style="font-size:10.5px; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; letter-spacing:0.04em;">Contents</div>
+              <a href="#digital-twin">1. Synthetic Digital Twin</a>
+              <a href="#flood-model">2. Flood Propagation</a>
+              <a href="#agent-behavior">3. Evacuation Agents</a>
+              <a href="#dynamic-routing">4. Route Impedance</a>
+              <a href="#optimization">5. Policy Optimization</a>
+              <a href="#uncertainty">6. Monte Carlo Uncertainty</a>
+              <a href="#equity-metric">7. Equity Metric Math</a>
+              <a href="#limitations">8. Limitations & Ethics</a>
+              <a href="#sources">9. Data Sources & GitHub</a>
+            </nav>
+          </div>
+
+          <article class="doc-article">
+            <section class="doc-section" id="digital-twin">
+              <h2 class="doc-title">1. Synthetic-City Digital Twin Architecture</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:12px;">
+                Riverton is a synthetic metropolitan area designed to exhibit realistic urban topography and demographic disparities without relying on sensitive real-world individual data. The spatial grid is constructed using a 10-meter Digital Elevation Model (DEM) featuring a central alluvial river valley, two elevated bluffs, and an engineered canal basin.
+              </p>
+              <div style="background:var(--bg-inset); padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); font-size:12.5px;">
+                <strong style="color:var(--text-primary);">City Calibration Profile:</strong> 78,500 synthetic residents distributed across 8 discrete neighborhoods with varying income levels, vehicle ownership ratios, mobility constraints, and structural elevation.
+              </div>
+            </section>
+
+            <section class="doc-section" id="flood-model">
+              <h2 class="doc-title">2. Flood Propagation & Hydrodynamics</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
+                Flood propagation is approximated using simplified 2D shallow water equations with Manning’s roughness coefficient to model overland runoff and channelized river stage cresting:
+              </p>
+              <div class="math-formula-box">
+                Q = (1 / n) · A · R^(2/3) · S^(1/2)
+              </div>
+              <p style="font-size:12.5px; color:var(--text-muted); line-height:1.5;">
+                Where <em>Q</em> is river discharge volume, <em>n</em> is Manning's bed roughness (0.035 for natural riverbed), <em>A</em> is cross-sectional flow area, <em>R</em> is hydraulic radius, and <em>S</em> is riverbed slope gradient.
+              </p>
+            </section>
+
+            <section class="doc-section" id="agent-behavior">
+              <h2 class="doc-title">3. Agent-Based Evacuation Behavior</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
+                Evacuation decision-making is modeled through bounded rationality agents. Households evaluate evacuation orders based on perceived risk, vehicle availability, mobility limitations, and family reunification buffers.
+              </p>
+              <div style="display:flex; flex-direction:column; gap:8px; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+                <div>• <strong style="color:var(--text-primary);">Vehicle-Owning Households (56%):</strong> Self-evacuate via private automobile with average departure lag of 45 minutes.</div>
+                <div>• <strong style="color:var(--text-primary);">Transit-Dependent Households (32%):</strong> Must wait for municipal shuttles or walk to neighborhood muster points.</div>
+                <div>• <strong style="color:var(--text-primary);">Mobility-Impaired Residents (12%):</strong> Require direct paratransit or specialized ambulance extraction.</div>
+              </div>
+            </section>
+
+            <section class="doc-section" id="dynamic-routing">
+              <h2 class="doc-title">4. Dynamic Route Selection & Water-Depth Impedance</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
+                Agents navigate the municipal road graph using dynamic Dijkstra / A* shortest path search. Road segment impedance (travel cost) increases exponentially with rising water depth:
+              </p>
+              <div class="math-formula-box">
+                Cost_edge = Length · (1 + α · (Depth / Threshold)^β)
+              </div>
+              <p style="font-size:12.5px; color:var(--text-muted); line-height:1.5;">
+                When water depth exceeds <strong>0.30 meters</strong> on roads or <strong>0.20 meters</strong> on bridges, impedance approaches infinity, effectively closing the corridor and forcing rerouting.
+              </p>
+            </section>
+
+            <section class="doc-section" id="optimization">
+              <h2 class="doc-title">5. Heuristic Policy Optimization (Pareto Frontier)</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
+                Emergency managers must balance competing objectives. The "AI-Optimized" response uses deterministic multi-objective genetic heuristics to trace the Pareto frontier across:
+              </p>
+              <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; font-size:12px;">
+                <div style="background:var(--bg-inset); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <strong style="color:var(--text-primary);">Max Life Safety:</strong>
+                  <div style="color:var(--text-muted); margin-top:2px;">Minimize stranded resident count</div>
+                </div>
+                <div style="background:var(--bg-inset); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <strong style="color:var(--text-primary);">Max Equity:</strong>
+                  <div style="color:var(--text-muted); margin-top:2px;">Minimize inter-neighborhood transit disparity</div>
+                </div>
+                <div style="background:var(--bg-inset); padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <strong style="color:var(--text-primary);">Min Budget:</strong>
+                  <div style="color:var(--text-muted); margin-top:2px;">Optimize asset deployment costs under municipal ceiling</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="doc-section" id="uncertainty">
+              <h2 class="doc-title">6. Monte Carlo Stochastic Uncertainty Analysis</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+                Rather than assuming static conditions, CrisisSim samples stochastic ensembles using Latin Hypercube Sampling across rainfall distribution curves, early warning notification variance, and shelter intake bottlenecks.
+              </p>
+            </section>
+
+            <section class="doc-section" id="equity-metric">
+              <h2 class="doc-title">7. Equity Metric Math: Modified Gini Parity Index</h2>
+              <p style="font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:10px;">
+                Equity is calculated as the inverse Gini inequality ratio across vulnerability tiers:
+              </p>
+              <div class="math-formula-box">
+                Equity = 1 - [ (Σ |EvacRate_i - EvacRate_j|) / (2 · N · μ) ]
+              </div>
+              <p style="font-size:12.5px; color:var(--text-muted); line-height:1.5;">
+                Where <em>EvacRate_i</em> is the percentage of safely evacuated residents in neighborhood <em>i</em> and <em>μ</em> is the citywide mean evacuation percentage.
+              </p>
+            </section>
+
+            <section class="doc-section" id="limitations">
+              <h2 class="doc-title">8. Assumptions, Model Limitations & Ethical Non-Operational Stance</h2>
+              <div class="product-statement-banner" style="margin:0 0 14px 0;">
+                <div>
+                  <strong style="color:var(--text-primary); font-size:12px;">Mandatory Notice:</strong>
+                  <div style="font-size:11.5px; color:var(--text-muted);">CrisisSim uses a synthetic, data-calibrated city for educational decision support. It is not an official emergency forecast or dispatch system.</div>
+                </div>
+              </div>
+              <p style="font-size:12.5px; color:var(--text-secondary); line-height:1.6;">
+                The model assumes steady communication infrastructure, idealized vehicle speeds prior to water inundation, and static floodplain permeability. Real disaster operations must incorporate field observations and municipal dispatch oversight.
+              </p>
+            </section>
+
+            <section class="doc-section" id="sources">
+              <h2 class="doc-title">9. References & Open Data Calibration</h2>
+              <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.6; display:flex; flex-direction:column; gap:6px;">
+                <div>• USGS National Elevation Dataset (NED) 10m topological profile standards</div>
+                <div>• U.S. Census Bureau Social Vulnerability Index (SVI) percentile distribution equations</div>
+                <div>• Federal Emergency Management Agency (FEMA) HAZUS Flood Model technical guidelines</div>
+                <div>• GitHub Repository: <code style="color:var(--accent-flood-light); font-family:var(--font-mono);">github.com/hackathon-crisissim/crisissim-digital-twin</code></div>
+              </div>
+            </section>
+          </article>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/common.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      CrisisCommon.initShell("methodology");
+    });
+  </script>
+</body>
+</html>
