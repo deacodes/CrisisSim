@@ -71,7 +71,7 @@ def build_city():
         "population": sum(POPULATIONS), "nodes": nodes, "roads": roads,
         "neighborhoods": neighborhoods, "facilities": facilities,
         "calibrated": False,
-        "notes": ["New synthetic geography; not yet integrated with the frontend.",
+        "notes": ["Synthetic metric geography shared by numerical simulation and frontend.",
                   "Population totals retained; neighborhood shapes are newly generated."],
     }
 

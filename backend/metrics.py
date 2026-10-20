@@ -28,8 +28,11 @@ def summarize_agents(agents, elapsed_s):
     for a in agents:
         state = a["state"]
         counts[state] = counts.get(state, 0) + 1
-        g = groups.setdefault(a["neighborhood"], {"population": 0, "safe": 0})
+        g = groups.setdefault(a["neighborhood"], {"population": 0, "safe": 0,
+            "mobility_impaired": 0, "transit_dependent": 0})
         g["population"] += 1
+        g["mobility_impaired"] += int(a.get("mobility_impaired", False))
+        g["transit_dependent"] += int(a.get("transit_dependent", False))
         if state == "sheltered":
             g["safe"] += 1
             origin = a["warning_s"] if np.isfinite(a["warning_s"]) else 0

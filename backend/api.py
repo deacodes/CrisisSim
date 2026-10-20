@@ -15,6 +15,7 @@ from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
 from backend.contracts import Contract, DISCLAIMER
 from backend.run_contracts import RunConfig, ExperimentConfig
@@ -26,6 +27,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PAGES = {"index.html", "scenarios.html", "new-scenario.html", "command-center.html",
          "city-model.html", "equity-analysis.html", "system-dynamics.html", "policy-lab.html",
          "uncertainty.html", "reports.html", "methodology.html", "settings.html"}
+LOCAL_FRONTENDS = {f"http://{host}:{port}" for host in ("localhost", "127.0.0.1")
+                   for port in (3000, 5500, 8000, 8001, 8010, 8011)}
 
 
 class ScenarioUpdate(Contract):
@@ -49,6 +52,10 @@ class Branch(Contract):
     prioritize_vulnerable: bool
 
 
+class ScenarioImport(Contract):
+    configs: list[RunConfig] = Field(min_length=1, max_length=50)
+
+
 def create_app(root=None, execute=True):
     store = Store(root or os.getenv("CRISIS_RUNTIME", ROOT/"runtime"))
     executor = None
@@ -69,13 +76,16 @@ def create_app(root=None, execute=True):
 
     app = FastAPI(title="CrisisSim", version="1.0", lifespan=lifespan)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"])
+    app.add_middleware(CORSMiddleware, allow_origins=sorted(LOCAL_FRONTENDS),
+                       allow_methods=["GET", "POST", "PATCH", "DELETE"],
+                       allow_headers=["Content-Type"])
     app.state.store = store
 
     @app.middleware("http")
     async def protect(request, call_next):
         if request.method not in ("GET", "HEAD", "OPTIONS"):
             origin = request.headers.get("origin")
-            if origin and origin != str(request.base_url).rstrip("/"):
+            if origin and origin != str(request.base_url).rstrip("/") and origin not in LOCAL_FRONTENDS:
                 return Response("Cross-origin writes rejected", status_code=403)
             try:
                 length = int(request.headers.get("content-length", "0"))
@@ -120,9 +130,21 @@ def create_app(root=None, execute=True):
     def scenarios():
         return [s for s in store.list("scenario") if s["status"] != "archived"]
 
+    @app.get("/api/v1/model")
+    def model():
+        """Configuration/geometry for the editor, without executing a simulation."""
+        from backend.city import build_city
+        return {"defaults": RunConfig().model_dump(), "city": build_city(),
+                "disclaimer": DISCLAIMER}
+
     @app.post("/api/v1/scenarios", status_code=201)
     def create_scenario(config: RunConfig):
         return store.create("scenario", {"config": config.model_dump()})
+
+    @app.post("/api/v1/scenarios/import", status_code=201)
+    def import_scenarios(payload: ScenarioImport):
+        # Pydantic validates the entire batch before any records are inserted.
+        return store.create_scenarios([c.model_dump() for c in payload.configs])
 
     @app.patch("/api/v1/scenarios/{identifier}")
     def edit_scenario(identifier: str, update: ScenarioUpdate):
@@ -141,7 +163,7 @@ def create_app(root=None, execute=True):
     @app.post("/api/v1/scenarios/{identifier}/duplicate", status_code=201)
     def duplicate(identifier: str):
         source = get(identifier, "scenario")
-        config = source["config"] | {"name": source["config"]["name"]+" copy"}
+        config = source["config"] | {"name": source["config"]["name"][:115]+" copy"}
         return store.create("scenario", {"config": config})
 
     @app.get("/api/v1/runs")
@@ -237,7 +259,7 @@ def create_app(root=None, execute=True):
     @app.websocket("/api/v1/runs/{identifier}/stream")
     async def stream(socket: WebSocket, identifier: str):
         origin = socket.headers.get("origin")
-        if origin and origin.split("://", 1)[-1] != socket.headers.get("host"):
+        if origin and origin.split("://", 1)[-1] != socket.headers.get("host") and origin not in LOCAL_FRONTENDS:
             await socket.close(code=1008)
             return
         await socket.accept()
@@ -278,6 +300,33 @@ def create_app(root=None, execute=True):
     def experiment_status(identifier: str):
         return get(identifier, "experiment")
 
+    @app.websocket("/api/v1/experiments/{identifier}/stream")
+    async def experiment_stream(socket: WebSocket, identifier: str):
+        origin = socket.headers.get("origin")
+        if origin and origin.split("://", 1)[-1] != socket.headers.get("host") and origin not in LOCAL_FRONTENDS:
+            await socket.close(code=1008)
+            return
+        await socket.accept()
+        revision = -1
+        try:
+            while True:
+                record = get(identifier, "experiment")
+                if record["revision"] != revision:
+                    # Announce metadata revisions; large evaluation records use HTTP.
+                    await socket.send_json({"id": identifier, "revision": record["revision"],
+                                            "status": record["status"]})
+                    revision = record["revision"]
+                if record["status"] in ("completed", "failed", "cancelled", "interrupted"):
+                    break
+                await asyncio.sleep(.5)
+        except (WebSocketDisconnect, HTTPException):
+            pass
+        finally:
+            try:
+                await socket.close()
+            except RuntimeError:
+                pass
+
     @app.post("/api/v1/experiments/{identifier}/cancel")
     def cancel_experiment(identifier: str):
         record = get(identifier, "experiment")
@@ -313,14 +362,8 @@ def create_app(root=None, execute=True):
     def page(page: str = "index.html"):
         if page not in PAGES:
             raise HTTPException(404)
-        html = (ROOT/page).read_text()
-        # Production never executes fixture scripts/inline demo handlers.
-        html = re.sub(r"<script\b[^>]*>.*?</script>", "", html, flags=re.S | re.I)
-        html = re.sub(r"<main\b[^>]*>.*?</main>",
-                      '<main class="page-viewport" id="live-content"><p role="status">Connecting to the simulation service…</p></main>',
-                      html, flags=re.S | re.I)
-        html = html.replace("</head>", '<link rel="stylesheet" href="/css/live.css"></head>')
-        return html.replace("</body>", '<script type="module" src="/js/live-app.js"></script></body>')
+        # Serve the exact same frontend as a static preview. No replacement UI.
+        return (ROOT/page).read_text()
 
     return app
 

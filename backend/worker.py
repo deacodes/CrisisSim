@@ -26,7 +26,8 @@ def run_job(root, database_url, run_id):
     if not store.claim(run_id):
         return
     attempt = record.get("attempt", 0)+1
-    store.update(run_id, {"attempt": attempt, "heartbeat": now(), "error": None})
+    store.update(run_id, {"attempt": attempt, "heartbeat": now(), "error": None,
+                         "sequence": -1, "time_s": 0, "progress": 0, "metrics": None})
     started = time.perf_counter()
     try:
         config = RunConfig.model_validate(record["config"])
@@ -86,7 +87,8 @@ def run_job(root, database_url, run_id):
                                       "snapshot_sha256": snap_hash, "field_sha256": field_hash})
             store.write_json(run_id, "manifest.json", manifest)
             store.update(run_id, {"sequence": sequence, "time_s": snapshot["time_s"],
-                                  "heartbeat": now(), "progress": snapshot["time_s"]/config.flood.duration_s})
+                                  "metrics": snapshot["metrics"], "heartbeat": now(),
+                                  "progress": snapshot["time_s"]/config.flood.duration_s})
         if store.get(run_id)["status"] != "cancelled":
             store.update(run_id, {"runtime_s": time.perf_counter()-started, "heartbeat": now()}, "completed")
     except Exception as error:

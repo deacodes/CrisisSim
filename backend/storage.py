@@ -57,6 +57,16 @@ class Store:
                 raise KeyError(identifier)
             return self.serialize(row)
 
+    def create_scenarios(self, configs):
+        """Import validated configs atomically, not partially on database errors."""
+        with self.sessions.begin() as session:
+            rows = [Record(id=str(uuid.uuid4()), kind="scenario", status="saved",
+                           created=datetime.now(timezone.utc).isoformat(),
+                           payload=json.dumps({"config": c}, allow_nan=False)) for c in configs]
+            session.add_all(rows)
+            session.flush()
+            return [self.serialize(row) for row in rows]
+
     def list(self, kind):
         with self.sessions() as session:
             return [self.serialize(r) for r in session.scalars(

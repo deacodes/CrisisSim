@@ -451,6 +451,8 @@ class Simulation:
         metrics["reserved_cost"] = self.dispatcher.reserved
         metrics["closed_roads"] = len({self.network.roads[k]["id"] for k in self.network.closed["vehicle"]})
         metrics["mean_exposure_depth_seconds"] = float(np.mean([a.exposure_depth_seconds for a in self.agents]))
+        metrics["max_depth_m"] = float(np.max(self.frame["depth_m"]))
+        metrics["water_volume_m3"] = float(np.dot(self.frame["depth_m"], self.hydro.domain.areas))
         metrics["facilities"] = {fid: {"occupancy": len(f.occupants), "capacity": f.capacity,
                                       "queued": len(f.queue), "open": f.opens_s <= self.time_s}
                                   for fid, f in self.facilities.items()}

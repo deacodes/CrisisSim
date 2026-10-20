@@ -30,7 +30,8 @@ def test_persistence_replay_and_reports(tmp_path):
         assert client.get(f"/api/v1/runs/{key}/artifacts/secrets.json").status_code == 404
         assert client.post("/api/v1/scenarios", json=config, headers={"origin": "https://evil.invalid"}).status_code == 403
         html = client.get("/command-center.html").text
-        assert "live-app.js" in html
+        assert "js/frontend.js" in html
+        assert 'class="command-workspace"' in html
         assert 'src="js/state.js"' not in html
     assert create_app(tmp_path, execute=False).state.store.get(key)["status"] == "completed"
 
@@ -125,11 +126,50 @@ def test_revision_conflict_and_input_limits(tmp_path):
 
 
 def test_all_production_pages_exclude_fixture_scripts(tmp_path):
-    from backend.api import PAGES
+    from backend.api import PAGES, ROOT
     with TestClient(create_app(tmp_path, execute=False)) as client:
         for page in PAGES:
             html = client.get("/"+page).text
-            assert 'id="live-content"' in html
-            assert 'src="/js/live-app.js"' in html
+            assert html == (ROOT/page).read_text()
+            assert 'class="page-viewport"' in html
+            assert 'src="js/frontend.js"' in html
             assert 'src="js/state.js"' not in html
             assert 'src="js/data.js"' not in html
+            assert "12,480" not in html
+            assert "live-app.js" not in html
+
+
+def test_editor_model_is_configuration_not_simulated_results(tmp_path):
+    with TestClient(create_app(tmp_path, execute=False)) as client:
+        model = client.get("/api/v1/model").json()
+        assert model["city"]["calibrated"] is False
+        assert model["defaults"]["population"] == 800
+        assert "metrics" not in model
+        assert client.get("/api/v1/runs").json() == []
+
+
+def test_experiment_stream_and_local_preview_origins(tmp_path):
+    with TestClient(create_app(tmp_path, execute=False)) as client:
+        headers = {"origin": "http://127.0.0.1:3000"}
+        response = client.post("/api/v1/experiments", headers=headers, json={
+            "kind": "comparison", "config": tiny_config().model_dump()})
+        assert response.status_code == 202
+        assert response.headers["access-control-allow-origin"] == headers["origin"]
+        identifier = response.json()["id"]
+        with client.websocket_connect(f"/api/v1/experiments/{identifier}/stream", headers=headers) as socket:
+            record = socket.receive_json()
+            assert record["id"] == identifier and record["status"] == "queued"
+        assert client.post("/api/v1/scenarios", json=tiny_config().model_dump(),
+                           headers={"origin": "https://untrusted.example"}).status_code == 403
+
+
+def test_import_is_validated_before_any_writes(tmp_path):
+    app = create_app(tmp_path, execute=False)
+    with TestClient(app) as client:
+        config = tiny_config().model_dump()
+        bad = config | {"population": -1}
+        assert client.post("/api/v1/scenarios/import", json={"configs": [config, bad]}).status_code == 422
+        assert app.state.store.list("scenario") == []
+        response = client.post("/api/v1/scenarios/import", json={"configs": [config, config]})
+        assert response.status_code == 201
+        assert len(app.state.store.list("scenario")) == 2
