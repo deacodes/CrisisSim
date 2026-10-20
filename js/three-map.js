@@ -66,12 +66,14 @@ export class RivertonThreeMap {
       });
       this.container.querySelector('.map-3d-actions')?.prepend(select);
     }
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x07111d);
-    this.scene.fog = new THREE.Fog(0x07111d, 42, 105);
 
-    this.camera = new THREE.PerspectiveCamera(43, 1, 0.1, 220);
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0x0a1820);
+    this.scene.fog = new THREE.FogExp2(0x0a1820, 0.012);
+
+    this.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 260);
     this.setCamera('isometric');
+
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.shadowMap.enabled = true;
@@ -80,15 +82,15 @@ export class RivertonThreeMap {
     this.canvasHost.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.target.set(0, 0, 0);
+    this.controls.target.set(0, 1, 0);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
-    this.controls.minDistance = 28;
-    this.controls.maxDistance = 76;
-    this.controls.maxPolarAngle = Math.PI * 0.47;
-    this.controls.minPolarAngle = Math.PI * 0.19;
-    this.controls.maxAzimuthAngle = Math.PI * 0.78;
-    this.controls.minAzimuthAngle = -Math.PI * 0.78;
+    this.controls.minDistance = 26;
+    this.controls.maxDistance = 80;
+    this.controls.maxPolarAngle = Math.PI * 0.46;
+    this.controls.minPolarAngle = Math.PI * 0.18;
+    this.controls.maxAzimuthAngle = Math.PI * 0.85;
+    this.controls.minAzimuthAngle = -Math.PI * 0.85;
     this.controls.screenSpacePanning = true;
 
     this.addLighting();
@@ -111,9 +113,12 @@ export class RivertonThreeMap {
   }
 
   setCamera(mode) {
-    if (mode === 'top') this.camera.position.set(0, 63, 0.5);
-    else this.camera.position.set(42, 38, 47);
-    this.camera.lookAt(0, 0, 0);
+    if (mode === 'top') {
+      this.camera.position.set(0, 68, 0.5);
+    } else {
+      this.camera.position.set(44, 36, 50);
+    }
+    this.camera.lookAt(0, 1, 0);
   }
 
   selectNeighborhood(id) {
@@ -123,154 +128,242 @@ export class RivertonThreeMap {
   }
 
   addLighting() {
-    this.scene.add(new THREE.HemisphereLight(0x84c9f5, 0x112d2a, 2.4));
-    const sun = new THREE.DirectionalLight(0xd8f1ff, 3.2);
-    sun.position.set(25, 46, 18);
+    const ambient = new THREE.HemisphereLight(0x7ab8e8, 0x1a3d28, 1.8);
+    this.scene.add(ambient);
+
+    const sun = new THREE.DirectionalLight(0xc8e8ff, 3.8);
+    sun.position.set(30, 55, 22);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    sun.shadow.camera.left = -50;
-    sun.shadow.camera.right = 50;
-    sun.shadow.camera.top = 50;
-    sun.shadow.camera.bottom = -50;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = -55;
+    sun.shadow.camera.right = 55;
+    sun.shadow.camera.top = 55;
+    sun.shadow.camera.bottom = -55;
+    sun.shadow.bias = -0.001;
     this.scene.add(sun);
+
+    const fill = new THREE.DirectionalLight(0x3a6080, 0.7);
+    fill.position.set(-20, 20, -15);
+    this.scene.add(fill);
   }
 
   addTerrain() {
-    // Use the same channel profile for the land and water, so the river
-    // sits below its banks rather than covering buildings with a flat sheet.
-    const riverCenter = z => 5 + Math.sin(z * 0.12) * 2.2;
-    const geometry = new THREE.PlaneGeometry(68, 58, 136, 116);
+    const W = 72, D = 60, SW = 144, SD = 120;
+
+    const riverX = z => 1.8 + Math.sin(z * 0.09) * 3.4 + Math.sin(z * 0.17) * 1.1;
+    const riverHalfWidth = 4.0;
+
+    const hillHeight = (x, z) => {
+      const nw = Math.exp(-((x + 22) ** 2 + (z - 16) ** 2) / 90) * 4.2;
+      const ne = Math.exp(-((x - 20) ** 2 + (z + 14) ** 2) / 120) * 2.8;
+      const sw = Math.exp(-((x + 18) ** 2 + (z + 20) ** 2) / 100) * 3.1;
+      const se = Math.exp(-((x - 22) ** 2 + (z - 18) ** 2) / 110) * 2.4;
+      return nw + ne + sw + se;
+    };
+
+    const geometry = new THREE.PlaneGeometry(W, D, SW, SD);
     const position = geometry.attributes.position;
-    for (let index = 0; index < position.count; index += 1) {
-      const x = position.getX(index);
-      const z = -position.getY(index);
-      const distance = Math.abs(x - riverCenter(z));
-      const channel = 1 - THREE.MathUtils.smoothstep(distance, 2.5, 4.2);
-      position.setZ(index, -1.2 * channel);
+    for (let i = 0; i < position.count; i++) {
+      const x = position.getX(i);
+      const z = -position.getY(i);
+      const rx = riverX(z);
+      const dist = Math.abs(x - rx);
+      const channel = THREE.MathUtils.smoothstep(dist, riverHalfWidth - 0.4, riverHalfWidth + 0.8);
+      const hill = hillHeight(x, z);
+      const height = hill * channel - (1 - channel) * 0.6;
+      position.setZ(i, height);
     }
     geometry.computeVertexNormals();
-    const terrain = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x426452, roughness: 0.94, metalness: 0 }));
+
+    const terrain = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+      color: 0x3a5e40,
+      roughness: 0.92,
+      metalness: 0.0,
+    }));
     terrain.rotation.x = -Math.PI / 2;
     terrain.receiveShadow = true;
     this.scene.add(terrain);
 
     const base = new THREE.Mesh(
-      new THREE.BoxGeometry(68, 1, 58),
-      new THREE.MeshStandardMaterial({ color: 0x293a32, roughness: 1 })
+      new THREE.BoxGeometry(W, 1.5, D),
+      new THREE.MeshStandardMaterial({ color: 0x1e2e24, roughness: 1 })
     );
-    base.position.y = -1.7;
+    base.position.y = -1.8;
     this.scene.add(base);
-    // Close the terrain's outer edge down to the base, including the river
-    // mouths where the perimeter is lower than the surrounding land.
+
     const rim = [];
-    for (let i = 0; i <= 136; i++) rim.push([-34 + i * 0.5, -29]);
-    for (let i = 1; i <= 116; i++) rim.push([34, -29 + i * 0.5]);
-    for (let i = 1; i <= 136; i++) rim.push([34 - i * 0.5, 29]);
-    for (let i = 1; i < 116; i++) rim.push([-34, 29 - i * 0.5]);
-    const skirtVertices = [];
+    for (let i = 0; i <= SW; i++) rim.push([-W / 2 + i * (W / SW), -D / 2]);
+    for (let i = 1; i <= SD; i++) rim.push([W / 2, -D / 2 + i * (D / SD)]);
+    for (let i = 1; i <= SW; i++) rim.push([W / 2 - i * (W / SW), D / 2]);
+    for (let i = 1; i < SD; i++) rim.push([-W / 2, D / 2 - i * (D / SD)]);
+    const skirtVerts = [];
     for (let i = 0; i < rim.length; i++) {
       const [x, z] = rim[i];
       const [nx, nz] = rim[(i + 1) % rim.length];
-      const height = -1.2 * (1 - THREE.MathUtils.smoothstep(Math.abs(x - riverCenter(z)), 2.5, 4.2));
-      const nextHeight = -1.2 * (1 - THREE.MathUtils.smoothstep(Math.abs(nx - riverCenter(nz)), 2.5, 4.2));
-      skirtVertices.push(x, height, z, nx, nextHeight, nz, x, -2.2, z,
-        nx, nextHeight, nz, nx, -2.2, nz, x, -2.2, z);
+      const rx = riverX(z), nrx = riverX(nz);
+      const ch = THREE.MathUtils.smoothstep(Math.abs(x - rx), riverHalfWidth - 0.4, riverHalfWidth + 0.8);
+      const nch = THREE.MathUtils.smoothstep(Math.abs(nx - nrx), riverHalfWidth - 0.4, riverHalfWidth + 0.8);
+      const h = hillHeight(x, z) * ch - (1 - ch) * 0.6;
+      const nh = hillHeight(nx, nz) * nch - (1 - nch) * 0.6;
+      skirtVerts.push(x, h, z, nx, nh, nz, x, -2.5, z, nx, nh, nz, nx, -2.5, nz, x, -2.5, z);
     }
-    const skirtGeometry = new THREE.BufferGeometry();
-    skirtGeometry.setAttribute('position', new THREE.Float32BufferAttribute(skirtVertices, 3));
-    skirtGeometry.computeVertexNormals();
-    this.scene.add(new THREE.Mesh(skirtGeometry, base.material));
+    const skirtGeo = new THREE.BufferGeometry();
+    skirtGeo.setAttribute('position', new THREE.Float32BufferAttribute(skirtVerts, 3));
+    skirtGeo.computeVertexNormals();
+    this.scene.add(new THREE.Mesh(skirtGeo, base.material));
 
-    const waterVertices = [];
-    const waterIndices = [];
-    for (let i = 0; i <= 116; i++) {
-      const z = -29 + i * 0.5;
-      const center = riverCenter(z);
-      waterVertices.push(center - 3.8, -0.22, z, center + 3.8, -0.22, z);
-      if (i < 116) {
+    const riverSegments = 140;
+    const riverVerts = [];
+    const riverIdx = [];
+    for (let i = 0; i <= riverSegments; i++) {
+      const z = -D / 2 + i * (D / riverSegments);
+      const cx = riverX(z);
+      riverVerts.push(cx - riverHalfWidth, -0.15, z);
+      riverVerts.push(cx + riverHalfWidth, -0.15, z);
+      if (i < riverSegments) {
         const a = i * 2;
-        waterIndices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+        riverIdx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
       }
     }
-    const waterGeometry = new THREE.BufferGeometry();
-    waterGeometry.setAttribute('position', new THREE.Float32BufferAttribute(waterVertices, 3));
-    waterGeometry.setIndex(waterIndices);
-    waterGeometry.computeVertexNormals();
-    const river = new THREE.Mesh(waterGeometry, new THREE.MeshStandardMaterial({
-      color: 0x157fb0, roughness: 0.3, metalness: 0.1
+    const riverGeo = new THREE.BufferGeometry();
+    riverGeo.setAttribute('position', new THREE.Float32BufferAttribute(riverVerts, 3));
+    riverGeo.setIndex(riverIdx);
+    riverGeo.computeVertexNormals();
+    const river = new THREE.Mesh(riverGeo, new THREE.MeshStandardMaterial({
+      color: 0x1a90c8,
+      roughness: 0.18,
+      metalness: 0.12,
     }));
     river.name = 'Riverton River';
     river.receiveShadow = true;
     this.scene.add(river);
 
-    this.flood = new THREE.Mesh(new THREE.CircleGeometry(10, 48), new THREE.MeshStandardMaterial({ color: 0x0d9be7, transparent: true, opacity: 0.18, roughness: 0.25, metalness: 0.08, depthWrite: false }));
-    this.flood.rotation.x = -Math.PI / 2;
-    this.flood.position.set(8, 0.08, 5);
-    this.scene.add(this.flood);
-    this.floodRisk = new THREE.Mesh(new THREE.CircleGeometry(10, 48),
-      new THREE.MeshBasicMaterial({ color: 0x769bc8, transparent: true, opacity: 0.22, depthWrite: false }));
-    this.floodRisk.rotation.x = -Math.PI / 2;
-    this.floodRisk.position.set(8, 0.065, 5);
-    this.floodRisk.renderOrder = 1;
+    const floodGeo = new THREE.BufferGeometry();
+    const floodVerts = [];
+    const floodIdx = [];
+    for (let i = 0; i <= riverSegments; i++) {
+      const z = -D / 2 + i * (D / riverSegments);
+      const cx = riverX(z);
+      const halfW = riverHalfWidth + 3.5;
+      floodVerts.push(cx - halfW, -0.05, z);
+      floodVerts.push(cx + halfW, -0.05, z);
+      if (i < riverSegments) {
+        const a = i * 2;
+        floodIdx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
+    }
+    floodGeo.setAttribute('position', new THREE.Float32BufferAttribute(floodVerts, 3));
+    floodGeo.setIndex(floodIdx);
+    floodGeo.computeVertexNormals();
+    this.flood = new THREE.Mesh(floodGeo, new THREE.MeshStandardMaterial({
+      color: 0x1aabef,
+      transparent: true,
+      opacity: 0.25,
+      roughness: 0.22,
+      metalness: 0.05,
+      depthWrite: false,
+    }));
     this.flood.renderOrder = 2;
+    this.scene.add(this.flood);
+
+    const riskGeo = new THREE.BufferGeometry();
+    const riskVerts = [];
+    const riskIdx = [];
+    for (let i = 0; i <= riverSegments; i++) {
+      const z = -D / 2 + i * (D / riverSegments);
+      const cx = riverX(z);
+      const halfW = riverHalfWidth + 7.5;
+      riskVerts.push(cx - halfW, -0.02, z);
+      riskVerts.push(cx + halfW, -0.02, z);
+      if (i < riverSegments) {
+        const a = i * 2;
+        riskIdx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
+    }
+    riskGeo.setAttribute('position', new THREE.Float32BufferAttribute(riskVerts, 3));
+    riskGeo.setIndex(riskIdx);
+    riskGeo.computeVertexNormals();
+    this.floodRisk = new THREE.Mesh(riskGeo, new THREE.MeshBasicMaterial({
+      color: 0x5588bb,
+      transparent: true,
+      opacity: 0.18,
+      depthWrite: false,
+    }));
+    this.floodRisk.renderOrder = 1;
     this.scene.add(this.floodRisk);
   }
 
   addRoadsAndRoutes() {
-    const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x293a47, roughness: 0.9 });
-    const road = (x, z, w, d) => {
-      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, d), roadMaterial);
-      mesh.position.set(x, 0.13, z);
+    const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x1e2d3a, roughness: 0.88 });
+    const road = (x, z, w, d, h = 0.18) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.07, d), roadMaterial);
+      mesh.position.set(x, h, z);
       mesh.receiveShadow = true;
       this.scene.add(mesh);
     };
-    road(-4, 0, 60, 2.0);
-    road(0, 0, 2.0, 52);
-    road(-10, -11, 34, 1.4);
-    road(13, 10, 1.4, 33);
 
-    const routeMaterial = new THREE.LineDashedMaterial({ color: 0x45e0e7, dashSize: 1.1, gapSize: 0.62, linewidth: 1 });
+    road(0, 0, 64, 2.2);
+    road(0, 0, 2.2, 54);
+    road(-12, -12, 28, 1.6);
+    road(14, 12, 1.6, 30);
+
+    const routeMaterial = new THREE.LineDashedMaterial({
+      color: 0x35dce8,
+      dashSize: 1.2,
+      gapSize: 0.7,
+      linewidth: 1,
+    });
+
     const routes = [
-      [[-25, -16], [-15, -10], [-7, -3], [10, 9]],
-      [[-18, 12], [-9, 7], [-1, 4], [10, 9]],
-      [[20, -16], [13, -8], [6, -2], [0, 4]],
+      [[-24, -18], [-16, -11], [-7, -4], [12, 8]],
+      [[-19, 14], [-10, 8], [-2, 4], [12, 8]],
+      [[22, -18], [14, -9], [6, -2], [1, 5]],
     ];
     routes.forEach(points => {
-      const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map(([x, z]) => new THREE.Vector3(x, 0.28, z))), routeMaterial);
+      const line = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(points.map(([x, z]) => new THREE.Vector3(x, 0.38, z))),
+        routeMaterial
+      );
       line.computeLineDistances();
       this.scene.add(line);
-      this.agentPaths.push(points.map(([x, z]) => new THREE.Vector3(x, 0.52, z)));
+      this.agentPaths.push(points.map(([x, z]) => new THREE.Vector3(x, 0.62, z)));
     });
   }
 
   addMarkers() {
     const addBeacon = (x, z, color, height) => {
-      const beacon = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.48, height, 8), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4, roughness: 0.5 }));
-      beacon.position.set(x, height / 2 + 0.22, z);
+      const beacon = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.46, height, 8),
+        new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.45, roughness: 0.5 })
+      );
+      beacon.position.set(x, height / 2 + 0.3, z);
       beacon.castShadow = true;
       this.scene.add(beacon);
     };
-    [[10, 9], [-15, -10], [0, 4]].forEach(([x, z]) => addBeacon(x, z, 0x21d49b, 2.5));
-    addBeacon(16, -4, 0xee554f, 3.2);
-    this.addMapLabel('East Shelter', 10, 6, 9, '#21d49b');
-    this.addMapLabel('North Shelter', -15, 6, -10, '#21d49b');
-    this.addMapLabel('West Shelter', 0, 6, 4, '#21d49b');
-    this.addMapLabel('Riverside Hospital', 16, 7, -4, '#ff7770');
+
+    [[12, 8], [-16, -11], [1, 5]].forEach(([x, z]) => addBeacon(x, z, 0x21d49b, 2.6));
+    addBeacon(18, -5, 0xee554f, 3.4);
+
+    this.addMapLabel('East Shelter', 12, 6.5, 8, '#21d49b');
+    this.addMapLabel('North Shelter', -16, 6.5, -11, '#21d49b');
+    this.addMapLabel('West Shelter', 1, 6.5, 5, '#21d49b');
+    this.addMapLabel('Riverside Hospital', 18, 7.5, -5, '#ff7770');
+
     this.closures = [
-      { x: 3.2, z: -2, hour: 4.2, name: 'Bridge 3 closed' },
-      { x: 0, z: -11, hour: 2.4, name: 'Parkway closed' },
-      { x: 13, z: 18, hour: 3.75, name: 'Canal bypass closed' }
+      { x: 3.5, z: -1.5, hour: 4.2, name: 'Parkway closed' },
+      { x: 0, z: -12, hour: 2.4, name: 'Bridge 3 closed' },
+      { x: 14, z: 20, hour: 3.75, name: 'Canal bypass closed' },
     ].map(closure => {
       const group = new THREE.Group();
       const material = new THREE.MeshBasicMaterial({ color: 0xef4444 });
       for (const angle of [-Math.PI / 4, Math.PI / 4]) {
-        const bar = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.16, 0.3), material);
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.18, 0.34), material);
         bar.rotation.y = angle;
         group.add(bar);
       }
-      group.position.set(closure.x, 0.4, closure.z);
+      group.position.set(closure.x, 0.55, closure.z);
       this.scene.add(group);
-      const label = this.addMapLabel(closure.name, closure.x, 3, closure.z, '#ff7770');
+      const label = this.addMapLabel(closure.name, closure.x, 3.2, closure.z, '#ff7770');
       return { ...closure, group, label };
     });
   }
@@ -279,28 +372,47 @@ export class RivertonThreeMap {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 80;
-    const context = canvas.getContext('2d');
-    context.fillStyle = '#101820';
-    context.fillRect(0, 0, 512, 80);
-    context.fillStyle = color;
-    context.font = '600 30px sans-serif';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(text, 256, 40);
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = 'rgba(10,22,32,0.88)';
+    const rr = (cx, cy, cw, ch, r) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + r, cy);
+      ctx.lineTo(cx + cw - r, cy);
+      ctx.quadraticCurveTo(cx + cw, cy, cx + cw, cy + r);
+      ctx.lineTo(cx + cw, cy + ch - r);
+      ctx.quadraticCurveTo(cx + cw, cy + ch, cx + cw - r, cy + ch);
+      ctx.lineTo(cx + r, cy + ch);
+      ctx.quadraticCurveTo(cx, cy + ch, cx, cy + ch - r);
+      ctx.lineTo(cx, cy + r);
+      ctx.quadraticCurveTo(cx, cy, cx + r, cy);
+      ctx.closePath();
+      ctx.fill();
+    };
+    rr(4, 8, 504, 64, 10);
+    ctx.fillStyle = color;
+    ctx.font = '600 28px "Prompt", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 256, 42);
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, depthTest: false, depthWrite: false }));
     sprite.position.set(x, y, z);
-    sprite.scale.set(8, 1.25, 1);
+    sprite.scale.set(9, 1.4, 1);
     sprite.renderOrder = 5;
     this.scene.add(sprite);
     return sprite;
   }
 
   addAgents() {
-    const geometry = new THREE.SphereGeometry(0.22, 8, 8);
-    const material = new THREE.MeshStandardMaterial({ color: 0xf7c84a, emissive: 0xb78710, emissiveIntensity: 0.35, roughness: 0.5 });
-    for (let index = 0; index < 42; index += 1) {
+    const geometry = new THREE.SphereGeometry(0.24, 8, 8);
+    const material = new THREE.MeshStandardMaterial({
+      color: 0xf7c84a,
+      emissive: 0xb78710,
+      emissiveIntensity: 0.4,
+      roughness: 0.5,
+    });
+    for (let index = 0; index < 42; index++) {
       const agent = new THREE.Mesh(geometry, material);
       agent.castShadow = true;
       const state = { mesh: agent, path: index % 3, progress: (index * 0.113) % 1, speed: 0.028 + (index % 6) * 0.004 };
@@ -318,29 +430,44 @@ export class RivertonThreeMap {
       materials.preload();
       objLoader.setMaterials(materials);
       const assets = await Promise.all([
-        this.loadAsset(objLoader, 'office-tower.obj'), this.loadAsset(objLoader, 'apartment-building.obj'), this.loadAsset(objLoader, 'row-house.obj'),
-        this.loadAsset(objLoader, 'hospital.obj'), this.loadAsset(objLoader, 'emergency-shelter.obj'), this.loadAsset(objLoader, 'bridge.obj'),
-        this.loadAsset(objLoader, 'rescue-boat.obj'), this.loadAsset(objLoader, 'ambulance.obj'), this.loadAsset(objLoader, 'tree.obj'),
-        this.loadAsset(objLoader, 'flood-barrier.obj'), this.loadAsset(objLoader, 'emergency-park.obj'),
+        this.loadAsset(objLoader, 'office-tower.obj'),
+        this.loadAsset(objLoader, 'apartment-building.obj'),
+        this.loadAsset(objLoader, 'row-house.obj'),
+        this.loadAsset(objLoader, 'hospital.obj'),
+        this.loadAsset(objLoader, 'emergency-shelter.obj'),
+        this.loadAsset(objLoader, 'bridge.obj'),
+        this.loadAsset(objLoader, 'rescue-boat.obj'),
+        this.loadAsset(objLoader, 'ambulance.obj'),
+        this.loadAsset(objLoader, 'tree.obj'),
+        this.loadAsset(objLoader, 'flood-barrier.obj'),
+        this.loadAsset(objLoader, 'emergency-park.obj'),
       ]);
       const [office, apartment, rowhouse, hospital, shelter, bridge, boat, ambulance, tree, barrier, park] = assets;
-      const place = (source, x, z, scale, rotation = 0) => {
+
+      const place = (source, x, z, scale, rotation = 0, yOffset = 0) => {
         const copy = source.clone(true);
-        copy.position.set(x, 0.2, z);
+        copy.position.set(x, yOffset, z);
         copy.scale.setScalar(scale);
         copy.rotation.y = rotation;
         copy.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } });
         this.scene.add(copy);
         return copy;
       };
-      place(office, -17, 11, 1.22, 0.1);
-      place(apartment, -20, -13, 1.05, -0.3); place(apartment, -10, 15, 0.9, 0.2);
-      place(rowhouse, -19, -2, 0.92, 0.02); place(rowhouse, 19, 13, 0.82, -0.42);
-      place(hospital, 16, -4, 0.82, 0.22);
-      place(shelter, 10, 9, 0.83, 0); place(shelter, -15, -10, 0.7, 0.6); place(shelter, 0, 4, 0.58, -0.2);
-      place(bridge, 3.2, -2, 0.62, Math.PI / 2); place(boat, 7.7, 0, 0.8, Math.PI / 2);
-      place(ambulance, 13, -7, 0.95, -0.1); place(barrier, 3, -7, 0.95, 0); place(park, -6, -18, 0.7, 0.12);
-      [[-25,8],[-13,1],[-9,-18],[2,18],[21,4],[25,-10],[-2,12],[7,-17]].forEach(([x,z], index) => place(tree, x, z, 0.75 + (index % 3) * 0.08, index * 0.6));
+
+      place(office, -20, 14, 1.28, 0.1);
+      place(apartment, -22, -14, 1.1, -0.3); place(apartment, -12, 17, 0.95, 0.2);
+      place(rowhouse, -22, -2, 0.96, 0.02); place(rowhouse, 21, 15, 0.86, -0.42);
+      place(hospital, 18, -5, 0.86, 0.22);
+      place(shelter, 12, 8, 0.86, 0); place(shelter, -16, -11, 0.74, 0.6); place(shelter, 1, 5, 0.62, -0.2);
+      place(bridge, 3.5, -1.5, 0.66, Math.PI / 2);
+      place(boat, 7.5, 0.5, 0.84, Math.PI / 2);
+      place(ambulance, 14, -8, 0.98, -0.1);
+      place(barrier, 3, -8, 0.98, 0);
+      place(park, -7, -20, 0.74, 0.12);
+
+      const treePositions = [[-27, 9], [-14, 2], [-10, -20], [2, 20], [23, 5], [26, -11], [-3, 13], [8, -18], [24, -20], [18, 20]];
+      treePositions.forEach(([x, z], i) => place(tree, x, z, 0.78 + (i % 3) * 0.09, i * 0.62));
+
       this.loaded = true;
       const status = this.container.querySelector('.map-3d-status strong');
       if (status) status.textContent = '3D city simulation · assets loaded';
@@ -363,11 +490,11 @@ export class RivertonThreeMap {
   updateSimulationState(state) {
     if (!state || !this.flood) return;
     const progress = Math.max(0, Math.min(1, state.currentTimeHours / 24));
-    const spread = 0.62 + progress * 1.1;
-    this.flood.scale.set(spread * 1.28, spread, 1);
-    this.flood.material.opacity = 0.13 + progress * 0.34;
-    const futureSpread = 0.62 + Math.min(1, (state.currentTimeHours + 6) / 24) * 1.1;
-    this.floodRisk.scale.set(futureSpread * 1.28, futureSpread, 1);
+    const spread = 0.7 + progress * 1.2;
+    this.flood.scale.set(spread, 1, spread);
+    this.flood.material.opacity = 0.18 + progress * 0.38;
+    const futureSpread = 0.7 + Math.min(1, (state.currentTimeHours + 6) / 24) * 1.2;
+    this.floodRisk.scale.set(futureSpread, 1, futureSpread);
     for (const closure of this.closures) {
       closure.group.visible = closure.label.visible = state.currentTimeHours >= closure.hour;
     }
@@ -378,8 +505,16 @@ export class RivertonThreeMap {
   }
 
   bindControls() {
-    this.container.querySelector('[data-action="reset"]')?.addEventListener('click', () => { this.setCamera('isometric'); this.controls.target.set(0, 0, 0); this.controls.update(); });
-    this.container.querySelector('[data-action="top"]')?.addEventListener('click', () => { this.setCamera('top'); this.controls.target.set(0, 0, 0); this.controls.update(); });
+    this.container.querySelector('[data-action="reset"]')?.addEventListener('click', () => {
+      this.setCamera('isometric');
+      this.controls.target.set(0, 1, 0);
+      this.controls.update();
+    });
+    this.container.querySelector('[data-action="top"]')?.addEventListener('click', () => {
+      this.setCamera('top');
+      this.controls.target.set(0, 1, 0);
+      this.controls.update();
+    });
     this.container.querySelector('[data-action="switch-to-2d"]')?.addEventListener('click', () => {
       window.dispatchEvent(new CustomEvent('crisissim-map-mode-change', { detail: { mode: '2d' } }));
     });
